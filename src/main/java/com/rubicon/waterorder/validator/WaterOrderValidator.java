@@ -52,4 +52,8 @@ public class WaterOrderValidator {
     public boolean isOrderOverlap(WaterOrderData waterOrderData){
         return waterOrderService.isOverlappingInDay(waterOrderData, daysToConsider);
     }
+
+    public  boolean isDeliveryOrCancelled(WaterOrderData waterOrderData){
+        return waterOrderService.isDeliveredOrCancelled(waterOrderData.getId());
+    }
 }

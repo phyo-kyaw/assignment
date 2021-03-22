@@ -35,10 +35,10 @@ public class TaskCompletePublisher implements ApplicationEventPublisherAware {
 
     public  void notifyTaskDone(){
         if( this.waterOrder.getOrderStatus().toString().equals(Status.Requested.toString()) ){
-            publisher.publishEvent(new WaterOrderStartTaskEvent(this, waterOrder));
+            publisher.publishEvent(new WaterOrderStartTaskEvent(this, this.waterOrder));
         }
         if( this.waterOrder.getOrderStatus().toString().equals(Status.Started.toString()) ){
-            publisher.publishEvent(new WaterOrderEndTaskEvent(this, waterOrder));
+            publisher.publishEvent(new WaterOrderEndTaskEvent(this, this.waterOrder));
         }
 
     }

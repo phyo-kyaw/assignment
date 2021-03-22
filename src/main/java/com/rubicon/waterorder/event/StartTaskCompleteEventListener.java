@@ -4,6 +4,8 @@ import com.rubicon.waterorder.service.SchedulerService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 public class StartTaskCompleteEventListener implements ApplicationListener<WaterOrderStartTaskEvent> {
 
@@ -15,9 +17,11 @@ public class StartTaskCompleteEventListener implements ApplicationListener<Water
 
     @Override
     public void onApplicationEvent(WaterOrderStartTaskEvent waterOrderStartTaskEvent) {
-        System.out.println("In StartTaskCompleteEventListener " + waterOrderStartTaskEvent.getClass().getName());
-        System.out.println("In StartTaskCompleteEventListener " + waterOrderStartTaskEvent.getWaterOrder().getId());
+        //System.out.println("In StartTaskCompleteEventListener " + waterOrderStartTaskEvent.getClass().getName());
+        System.out.println(LocalDateTime.now().toString() + " : " + "In StartTaskCompleteEventListener " + waterOrderStartTaskEvent.getWaterOrder().getId());
         schedulerService.test(waterOrderStartTaskEvent.getWaterOrder().getId().toString());
+        //schedulerService.scheduleEndTask(waterOrderStartTaskEvent.getWaterOrder());
+        System.out.println("****");
         //schedulerService.scheduleEndTask()
     }
 }

@@ -38,10 +38,11 @@ public class SchedulerService {
         Long delayInSec = Duration.between(LocalDateTime.now(), waterOrder.getStartDateTime()).getSeconds();
         System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
                 + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
+                + " and will start at " + waterOrder.getStartDateTime().toString()
                 + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec) + ".");
 
-        System.out.println(this.applicationEventPublisher);
-        System.out.println(taskCompletePublisher.getPublisher());
+        //System.out.println(this.applicationEventPublisher);
+        //System.out.println(taskCompletePublisher.getPublisher());
 
         ScheduledFuture<TaskCompletePublisher> futureOrder = executor.schedule(waterOrderScheduleTask, delayInSec, TimeUnit.SECONDS);
         //String id = waterOrder.getId().toString() + Long.toString(System.currentTimeMillis());
@@ -56,10 +57,12 @@ public class SchedulerService {
         Long delayInSec = waterOrder.getFlowDuration().getSeconds();
         System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
                 + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
-                + " and will start at " + waterOrder.getStartDateTime().toString() );
+                +  " = " + waterOrder.getStartDateTime().toString()
+                + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec).toString()
+                + " --- in seconds " + delayInSec + ".");
 
-        System.out.println(this.applicationEventPublisher);
-        System.out.println(taskCompletePublisher.getPublisher());
+        //System.out.println(this.applicationEventPublisher);
+        //System.out.println(taskCompletePublisher.getPublisher());
 
         ScheduledFuture<TaskCompletePublisher> futureOrder = executor.schedule(waterOrderScheduleTask, delayInSec, TimeUnit.SECONDS);
         //String id = waterOrder.getId().toString() + Long.toString(System.currentTimeMillis());
@@ -109,5 +112,7 @@ public class SchedulerService {
     }
 
 
+    public void scheduleCancelTask(Long id) {
+    }
 }
 

@@ -15,9 +15,7 @@ public class ScheduleTask implements Callable<TaskCompletePublisher>
 
     @Override
     public TaskCompletePublisher call() throws Exception {
-        System.out.println("task called!");
-        taskCompletePublisher.notifyStartTaskDone();
-        System.out.println("task called!");
+        taskCompletePublisher.notifyTaskDone();
         return taskCompletePublisher;
     }
 
