@@ -16,8 +16,7 @@ import java.util.Date;
 
 @Entity
 @Service
-public class WaterOrder implements ApplicationEventPublisherAware
-{
+public class WaterOrder {
 
     @Id
     @GeneratedValue
@@ -31,9 +30,6 @@ public class WaterOrder implements ApplicationEventPublisherAware
 
     private Status orderStatus;
 
-    @Transient
-    @Autowired
-    private ApplicationEventPublisher publisher;
 
     public WaterOrder() {
     }
@@ -47,13 +43,12 @@ public class WaterOrder implements ApplicationEventPublisherAware
         this.orderStatus = orderStatus;
     }
 
-    public WaterOrder(Long id, Long farmId, LocalDateTime startDateTime, Long flowDurationInSec, Status orderStatus, ApplicationEventPublisher publisher) {
+    public WaterOrder(Long id, Long farmId, String startDateTime, Long flowDurationInSec, Status orderStatus) {
         this.id = id;
         this.farmId = farmId;
-        this.startDateTime = startDateTime;
+        this.startDateTime = LocalDateTime.parse(startDateTime);
         this.flowDuration = Duration.ofSeconds(flowDurationInSec);
         this.orderStatus = orderStatus;
-        this.publisher = publisher;
     }
 
     public Long getId() {
@@ -109,19 +104,6 @@ public class WaterOrder implements ApplicationEventPublisherAware
                 ", flowDurationInSec=" + flowDuration.getSeconds() +
                 ", orderStatus=" + orderStatus +
                 '}';
-    }
-
-
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.publisher = applicationEventPublisher;
-    }
-
-    public void notifiyTaskDone(){
-        System.out.println("Hello from water order");
-        //setApplicationEventPublisher(publisher);
-        publisher.publishEvent(new WaterOrderEvent(this, "ADD", this));
-        System.out.println("Hello from water order after the call");
     }
 
 

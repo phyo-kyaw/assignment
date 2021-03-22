@@ -1,25 +1,31 @@
 package com.rubicon.waterorder.event;
 
-import com.rubicon.waterorder.model.WaterOrderEvent;
-import org.springframework.context.ApplicationEvent;
+import com.rubicon.waterorder.model.Status;
+import com.rubicon.waterorder.model.WaterOrder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-
-import javax.persistence.Transient;
 
 public class TaskCompletePublisher implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher publisher;
 
-    private String waterOrderId;
+    private WaterOrder waterOrder;
 
-    public TaskCompletePublisher(String waterOrderId) {
-        this.waterOrderId = waterOrderId;
+    public WaterOrder getWaterOrder() {
+        return waterOrder;
     }
 
-    public TaskCompletePublisher(ApplicationEventPublisher publisher, String waterOrderId) {
+    public void setWaterOrder(WaterOrder waterOrder) {
+        this.waterOrder = waterOrder;
+    }
+
+    public TaskCompletePublisher(WaterOrder waterOrder) {
+        this.waterOrder = waterOrder;
+    }
+
+    public TaskCompletePublisher(ApplicationEventPublisher publisher, WaterOrder waterOrder) {
         this.publisher = publisher;
-        this.waterOrderId = waterOrderId;
+        this.waterOrder = waterOrder;
     }
 
     @Override
@@ -28,18 +34,18 @@ public class TaskCompletePublisher implements ApplicationEventPublisherAware {
     }
 
     public  void notifyTaskDone(){
-        publisher.publishEvent(new WaterOrderTaskEvent(this, waterOrderId));
+        if( this.waterOrder.getOrderStatus().toString().equals(Status.Requested.toString()) ){
+            publisher.publishEvent(new WaterOrderStartTaskEvent(this, waterOrder));
+        }
+        if( this.waterOrder.getOrderStatus().toString().equals(Status.Started.toString()) ){
+            publisher.publishEvent(new WaterOrderEndTaskEvent(this, waterOrder));
+        }
+
     }
 
     public ApplicationEventPublisher getPublisher() {
         return publisher;
     }
 
-    public String getWaterOrderId() {
-        return waterOrderId;
-    }
 
-    public void setWaterOrderId(String waterOrderId) {
-        this.waterOrderId = waterOrderId;
-    }
 }

@@ -1,16 +1,16 @@
 package com.rubicon.waterorder.service;
 
-import com.rubicon.waterorder.event.TaskCompleteEvent;
 import com.rubicon.waterorder.model.WaterOrder;
-import com.rubicon.waterorder.model.WaterOrderTask;
+import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
 
 @Service
 public class WaterOrderService {
@@ -34,7 +34,77 @@ public class WaterOrderService {
         return "hello";
     }
 
-    public boolean isOverlappingInSameDay(WaterOrder waterOrder, int daysToConsider) {
+    public boolean isOverlappingInDay(WaterOrderData waterOrderData, int daysToConsider) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        LocalDateTime start = LocalDateTime.parse(waterOrderData.getStartDateTime(),formatter);
+        LocalDateTime end = start.plus(Duration.ofSeconds(waterOrderData.getFlowDuration()));
+
+        LocalDateTime startDateTimeConsidered = start
+                .toLocalDate()
+                .atStartOfDay()
+                .minusDays(daysToConsider);
+
+        LocalDateTime endDateTimeConsidered = end
+                .toLocalDate()
+                .atStartOfDay()
+                .plusHours(23)
+                .plusMinutes(59)
+                .plusSeconds(59)
+                .plusDays(daysToConsider);
+
+
+        List<WaterOrder> waterOrderListBefore = new ArrayList<>();
+        List<WaterOrder> waterOrderListAfter = new ArrayList<>();
+
+        System.out.println(startDateTimeConsidered.toString());
+        System.out.println(endDateTimeConsidered.toString());
+        System.out.println(waterOrderData.toString());
+
+
+
+        waterOrderListBefore = waterOrderRepo
+                .findAllByStartDateTimeBetweenOrderByStartDateTimeDesc(startDateTimeConsidered, end);
+
+        if (waterOrderListBefore.size() >= 1) {
+            WaterOrder waterOrderConsidered = waterOrderListBefore.get(0);
+            if (checkOverlap(start, end, waterOrderConsidered)) return true;
+        }
+
+        waterOrderListAfter = waterOrderRepo.
+                findAllByStartDateTimeBetweenOrderByStartDateTimeAsc(start, endDateTimeConsidered);
+
+        if(waterOrderListAfter.size() >= 1) {
+            WaterOrder waterOrderConsidered = waterOrderListAfter.get(0);
+
+            if (checkOverlap(start, end, waterOrderConsidered)) return true;
+        }
+
+        return false;
+    }
+
+    private boolean checkOverlap(LocalDateTime start, LocalDateTime end, WaterOrder waterOrderConsidered) {
+
+        LocalDateTime start2 = waterOrderConsidered.getStartDateTime();
+        LocalDateTime end2 = waterOrderConsidered.getStartDateTime()
+                .plus(waterOrderConsidered.getFlowDuration());
+
+        boolean isOverlapped = isOverlapping(start, end, start2, end2);
+
+        if (isOverlapped) {
+            System.out.println("overlapped");
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isOverlapping(LocalDateTime start1, LocalDateTime end1, LocalDateTime start2, LocalDateTime end2) {
+        return start1.isBefore(end2) && start2.isBefore(end1);
+
+    }
+
+    public boolean isOverlappingInDay11(WaterOrder waterOrder, int daysToConsider) {
 
         LocalDateTime startDateTimeConsidered = waterOrder.getStartDateTime()
                 .toLocalDate()
@@ -65,11 +135,13 @@ public class WaterOrderService {
         System.out.println(startDateTimeConsidered.toString());
         System.out.println(endDateTimeConsidered.toString());
         System.out.println(waterOrderList.toString());
+        System.out.println(waterOrder.toString());
+
 
 
         waterOrderListBefore = waterOrderRepo.findAllByStartDateTimeBetweenOrderByStartDateTimeDesc(
                 startDateTimeConsidered,
-                waterOrder.getStartDateTime());
+                waterOrder.getStartDateTime()); //.stream().map( x -> x.getOrderStatus() == warterOrder.get);
 
         if (waterOrderListBefore.size() >= 1) {
             WaterOrder waterOrderConsidered = waterOrderListBefore.get(0);
@@ -103,10 +175,5 @@ public class WaterOrderService {
         }
 
         return false;
-    }
-
-    public boolean isOverlapping(LocalDateTime start1, LocalDateTime end1, LocalDateTime start2, LocalDateTime end2) {
-        return start1.isBefore(end2) && start2.isBefore(end1);
-
     }
 }

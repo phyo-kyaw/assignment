@@ -1,17 +1,12 @@
 package com.rubicon.waterorder.service;
 
-import com.rubicon.waterorder.event.TaskCompleteEvent;
 import com.rubicon.waterorder.event.TaskCompletePublisher;
 import com.rubicon.waterorder.model.WaterOrder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
 import java.util.concurrent.*;
 
 @Service
@@ -20,8 +15,6 @@ public class SchedulerService {
     private ApplicationEventPublisher applicationEventPublisher;
 
     private ScheduledExecutorService executor;
-    private Map<String, ScheduledFuture<TaskCompletePublisher>> scheduledOrderList = new HashMap<>();
-    //private Map<String, ScheduledFuture<TaskCompleteEvent>> scheduledOrderList = new HashMap<>();
 
     private static SchedulerService INSTANCE = new SchedulerService();
 
@@ -39,31 +32,39 @@ public class SchedulerService {
 
     //ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     public ScheduledFuture<TaskCompletePublisher> scheduleStartTask(WaterOrder waterOrder){
-        waterOrder.setApplicationEventPublisher(applicationEventPublisher);
-        //Task waterOrderScheduledTask = new Task(waterOrder);
-        TaskCompletePublisher taskCompletePublisher = new TaskCompletePublisher(waterOrder.getId().toString());
+        TaskCompletePublisher taskCompletePublisher = new TaskCompletePublisher(waterOrder);
         taskCompletePublisher.setApplicationEventPublisher(this.applicationEventPublisher);
-        ScheduleTask waterOrderScheduledTask = new ScheduleTask(taskCompletePublisher);
+        ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
         Long delayInSec = Duration.between(LocalDateTime.now(), waterOrder.getStartDateTime()).getSeconds();
-        System.out.println("Water Order Task [" + waterOrder.getId() + "] scheduled from : "
+        System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
                 + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
-                + " and will start at " + waterOrder.getStartDateTime().toString() );
-        System.out.println(delayInSec);
+                + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec) + ".");
 
         System.out.println(this.applicationEventPublisher);
         System.out.println(taskCompletePublisher.getPublisher());
 
-        ScheduledFuture<TaskCompletePublisher> futureOrder = executor.schedule(waterOrderScheduledTask, delayInSec, TimeUnit.SECONDS);
-        String id = waterOrder.getId().toString() + Long.toString(System.currentTimeMillis());
-        scheduledOrderList.put(id , futureOrder);
-
-        System.out.println(scheduledOrderList.size());
-        System.out.println(scheduledOrderList.get(id));
-
+        ScheduledFuture<TaskCompletePublisher> futureOrder = executor.schedule(waterOrderScheduleTask, delayInSec, TimeUnit.SECONDS);
+        //String id = waterOrder.getId().toString() + Long.toString(System.currentTimeMillis());
         return futureOrder;
     }
 
+    public ScheduledFuture<TaskCompletePublisher> scheduleEndTask(WaterOrder waterOrder){
+        TaskCompletePublisher taskCompletePublisher = new TaskCompletePublisher(waterOrder);
+        taskCompletePublisher.setApplicationEventPublisher(this.applicationEventPublisher);
+        ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
+        //Long delayInSec = Duration.between(LocalDateTime.now(), waterOrder.getStartDateTime()).getSeconds();
+        Long delayInSec = waterOrder.getFlowDuration().getSeconds();
+        System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
+                + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
+                + " and will start at " + waterOrder.getStartDateTime().toString() );
 
+        System.out.println(this.applicationEventPublisher);
+        System.out.println(taskCompletePublisher.getPublisher());
+
+        ScheduledFuture<TaskCompletePublisher> futureOrder = executor.schedule(waterOrderScheduleTask, delayInSec, TimeUnit.SECONDS);
+        //String id = waterOrder.getId().toString() + Long.toString(System.currentTimeMillis());
+        return futureOrder;
+    }
 /*    public ScheduledFuture<TaskCompleteEvent> scheduleStartTask(TaskCompleteEvent taskCompleteEvent){
         Task waterOrderScheduledTask = new Task(taskCompleteEvent);
         Long delayInSec = Duration.between(LocalDateTime.now(), taskCompleteEvent.getWaterOrder().getStartDateTime()).getSeconds();
@@ -103,8 +104,8 @@ public class SchedulerService {
 
     }
 
-    public void test(){
-        System.out.println("Test in SchedulerService");
+    public void test(String waterOrderId){
+        System.out.println("Test in SchedulerService: wo_id " + waterOrderId);
     }
 
 
