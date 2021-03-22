@@ -1,5 +1,6 @@
 package com.rubicon.waterorder.service;
 
+import com.rubicon.waterorder.event.WaterOrderCancelTaskEvent;
 import com.rubicon.waterorder.event.WaterOrderEndTaskEvent;
 import com.rubicon.waterorder.event.WaterOrderStartTaskEvent;
 import com.rubicon.waterorder.model.Status;
@@ -37,6 +38,9 @@ public class EventHandlerService {
 
             waterOrderRepository.save(waterOrderReferenced);
             System.out.println("Start Complete");
+
+            schedulerService.removeTaskFromQueue(waterOrderProcessed);
+
             schedulerService.setApplicationEventPublisher(this.applicationEventPublisher);
             schedulerService.scheduleEndTask(waterOrderReferenced);
         }
@@ -54,5 +58,22 @@ public class EventHandlerService {
             waterOrderRepository.save(waterOrderReferenced);
             System.out.println("End Complete");
         }
+    }
+
+    @EventListener
+    void onCancelTaskComplete(WaterOrderCancelTaskEvent waterOrderCancelTaskEvent){
+        WaterOrder waterOrderProcessed = waterOrderCancelTaskEvent.getWaterOrder();
+        WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
+        String status = waterOrderReferenced.getOrderStatus().toString();
+
+        if( status.equals(Status.Cancelled.toString()) || status.equals(Status.Delivered.toString()) ) {
+            System.out.println("The order has been delivered or cancelled");
+        }
+
+        waterOrderReferenced.setOrderStatus(Status.Cancelled);
+
+        waterOrderRepository.save(waterOrderReferenced);
+        System.out.println("Cancel Complete");
+
     }
 }

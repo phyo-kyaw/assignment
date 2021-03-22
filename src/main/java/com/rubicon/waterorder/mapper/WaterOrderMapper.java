@@ -18,10 +18,11 @@ public class WaterOrderMapper {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+        waterOrder.setId(waterOrderData.getId());
         waterOrder.setFarmId(waterOrderData.getFarmId());
         waterOrder.setStartDateTime(LocalDateTime.parse(waterOrderData.getStartDateTime(), formatter));
         waterOrder.setFlowDuration(Duration.ofSeconds(waterOrderData.getFlowDuration()));
-        waterOrder.setOrderStatus(Status.Requested);
+        waterOrder.setOrderStatus(waterOrderData.getOrderStatus());
         return waterOrder;
     }
 }

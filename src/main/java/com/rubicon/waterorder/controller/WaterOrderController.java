@@ -99,12 +99,20 @@ public class WaterOrderController {
             @RequestBody WaterOrderData waterOrderData){
         //System.out.println(waterOrderData.toString());
 
+        if(waterOrderData.getOrderStatus().toString().equals(Status.Cancelled.toString())){
+            return ResponseEntity.badRequest().build();
+        }
+
         if(waterOrderValidator.isDeliveryOrCancelled(waterOrderData)){
             return ResponseEntity.badRequest().build();
         }
 
+        WaterOrder waterOrder = new WaterOrder();
+        WaterOrder waterOrderToCancel = waterOrderMapper.constructWaterOrder(waterOrderData, waterOrder);
+
         schedulerService.setApplicationEventPublisher(this.publisher);
-        schedulerService.scheduleCancelTask(waterOrderData.getId());
+
+        schedulerService.cancelTask(waterOrderToCancel);
 
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
@@ -148,7 +156,7 @@ public class WaterOrderController {
         //schedulerService.setApplicationEventPublisher(publisher);
         //schedulerService.scheduleStartTask(wo1);
 
-        WaterOrder wo1 = new WaterOrder(1L, farmId, now().plusSeconds(10) , 10L, Status.Requested);
+        WaterOrder wo1 = new WaterOrder(1L, farmId, now().plusSeconds(10) , 20L, Status.Requested);
         WaterOrder wo2 = new WaterOrder(2L, farmId, now().plusSeconds(20), 10L, Status.Requested);
         WaterOrder wo3 = new WaterOrder(3L, farmId, now().plusSeconds(30), 10L, Status.Requested);
 
@@ -160,6 +168,14 @@ public class WaterOrderController {
         schedulerService.scheduleStartTask(wo1);
         schedulerService.scheduleStartTask(wo2);
         schedulerService.scheduleStartTask(wo3);
+
+        try {
+            sleep(15000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        schedulerService.cancelTask(wo1);
 
 /*        try {
             sleep(15000);
