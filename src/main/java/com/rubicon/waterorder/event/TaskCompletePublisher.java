@@ -4,7 +4,9 @@ import com.rubicon.waterorder.model.Status;
 import com.rubicon.waterorder.model.WaterOrder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TaskCompletePublisher implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher publisher;
@@ -15,16 +17,14 @@ public class TaskCompletePublisher implements ApplicationEventPublisherAware {
         return waterOrder;
     }
 
+    public TaskCompletePublisher() {
+    }
+
     public void setWaterOrder(WaterOrder waterOrder) {
         this.waterOrder = waterOrder;
     }
 
     public TaskCompletePublisher(WaterOrder waterOrder) {
-        this.waterOrder = waterOrder;
-    }
-
-    public TaskCompletePublisher(ApplicationEventPublisher publisher, WaterOrder waterOrder) {
-        this.publisher = publisher;
         this.waterOrder = waterOrder;
     }
 
@@ -40,7 +40,6 @@ public class TaskCompletePublisher implements ApplicationEventPublisherAware {
         if( this.waterOrder.getOrderStatus().toString().equals(Status.Started.toString()) ){
             publisher.publishEvent(new WaterOrderEndTaskEvent(this, this.waterOrder));
         }
-
     }
 
     public ApplicationEventPublisher getPublisher() {

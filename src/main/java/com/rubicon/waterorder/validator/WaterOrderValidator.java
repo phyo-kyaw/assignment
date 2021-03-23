@@ -2,6 +2,7 @@ package com.rubicon.waterorder.validator;
 
 import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.service.WaterOrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -19,6 +20,7 @@ public class WaterOrderValidator {
     public WaterOrderValidator() {
     }
 
+    @Autowired
     public WaterOrderValidator(WaterOrderService waterOrderService) {
         this.waterOrderService = waterOrderService;
     }

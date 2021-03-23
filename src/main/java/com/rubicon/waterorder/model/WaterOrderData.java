@@ -2,6 +2,7 @@ package com.rubicon.waterorder.model;
 
 public class WaterOrderData {
 
+
     private Long id;
 
     private Long farmId;
@@ -10,23 +11,17 @@ public class WaterOrderData {
 
     private Long flowDuration;
 
-    private  Status OrderStatus;
+    private  Status orderStatus;
 
 
     public WaterOrderData() {
-    }
-
-    public WaterOrderData(Long farmId, String startDateTime, Long flowDuration) {
-        this.farmId = farmId;
-        this.startDateTime = startDateTime;
-        this.flowDuration = flowDuration;
     }
 
     public WaterOrderData(Long farmId, String startDateTime, Long flowDuration, Status orderStatus) {
         this.farmId = farmId;
         this.startDateTime = startDateTime;
         this.flowDuration = flowDuration;
-        OrderStatus = orderStatus;
+        this.orderStatus = orderStatus;
     }
 
     public WaterOrderData(Long id, Long farmId, String startDateTime, Long flowDuration, Status orderStatus) {
@@ -34,7 +29,7 @@ public class WaterOrderData {
         this.farmId = farmId;
         this.startDateTime = startDateTime;
         this.flowDuration = flowDuration;
-        OrderStatus = orderStatus;
+        this.orderStatus = orderStatus;
     }
 
     public Long getId() {
@@ -54,7 +49,7 @@ public class WaterOrderData {
     }
 
     public Status getOrderStatus() {
-        return OrderStatus;
+        return orderStatus;
     }
 
     public void setId(Long id) {
@@ -74,7 +69,7 @@ public class WaterOrderData {
     }
 
     public void setOrderStatus(Status orderStatus) {
-        OrderStatus = orderStatus;
+        this.orderStatus = orderStatus;
     }
 
     @Override
@@ -84,7 +79,7 @@ public class WaterOrderData {
                 ", farmId=" + farmId +
                 ", startDateTime='" + startDateTime + '\'' +
                 ", flowDuration=" + flowDuration +
-                ", OrderStatus=" + OrderStatus +
+                ", OrderStatus=" + orderStatus +
                 '}';
     }
 }

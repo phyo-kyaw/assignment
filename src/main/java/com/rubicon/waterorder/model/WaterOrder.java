@@ -5,21 +5,18 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 @Entity
-@Service
 public class WaterOrder {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long farmId;
@@ -28,7 +25,11 @@ public class WaterOrder {
 
     private Duration flowDuration;
 
+    @Enumerated(EnumType.STRING)
     private Status orderStatus;
+
+    @OneToMany(mappedBy = "waterOrder")
+    private List<WaterOrderLog> waterOrderLogs;
 
 
     public WaterOrder() {

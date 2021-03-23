@@ -15,13 +15,11 @@ public interface WaterOrderRepository extends JpaRepository<WaterOrder, Long> {
     List<WaterOrder> findByIdAndFarmId(long id, long farmId);
 
 
-
-
     @Query(value = "SELECT wo FROM WaterOrder wo WHERE wo.farmId = ?1 AND wo.startDateTime BETWEEN ?2 AND ?3 ORDER BY wo.startDateTime DESC")
-    List<WaterOrder> findByFarmIdAndByStartDateTimeBetweenOrderByStartDateTimeDesc(
+     List<WaterOrder> findByFarmIdAndByStartDateTimeBetweenOrderByStartDateTimeDesc(
             Long farmId,
             LocalDateTime dateTimeStart,
-            LocalDateTime  dateTimeEnd);
+            LocalDateTime dateTimeEnd) ;
 
     @Query(value = "SELECT wo FROM WaterOrder wo WHERE wo.farmId = ?1 AND wo.startDateTime BETWEEN ?2 AND ?3 ORDER BY wo.startDateTime ASC")
     List<WaterOrder> findByFarmIdAndByStartDateTimeBetweenOrderByStartDateTimeAsc(

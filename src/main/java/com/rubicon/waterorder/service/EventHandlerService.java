@@ -3,9 +3,13 @@ package com.rubicon.waterorder.service;
 import com.rubicon.waterorder.event.WaterOrderCancelTaskEvent;
 import com.rubicon.waterorder.event.WaterOrderEndTaskEvent;
 import com.rubicon.waterorder.event.WaterOrderStartTaskEvent;
+import com.rubicon.waterorder.mapper.WaterOrderLogMapper;
 import com.rubicon.waterorder.model.Status;
 import com.rubicon.waterorder.model.WaterOrder;
+import com.rubicon.waterorder.model.WaterOrderLog;
+import com.rubicon.waterorder.repository.WaterOrderLogRepository;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -17,14 +21,26 @@ public class EventHandlerService {
 
     private WaterOrderRepository waterOrderRepository;
 
+    private WaterOrderLogRepository waterOrderLogRepository;
+
     private ApplicationEventPublisher applicationEventPublisher;
+
+    private WaterOrderLogMapper waterOrderLogMapper;
 
     private SchedulerService schedulerService = SchedulerService.getInstance();
 
+    public EventHandlerService() {
+    }
+
+    @Autowired
     public EventHandlerService(WaterOrderRepository waterOrderRepository,
-                               ApplicationEventPublisher applicationEventPublisher) {
+                               WaterOrderLogRepository waterOrderLogRepository,
+                               ApplicationEventPublisher applicationEventPublisher,
+                               WaterOrderLogMapper waterOrderLogMapper) {
         this.waterOrderRepository = waterOrderRepository;
+        this.waterOrderLogRepository = waterOrderLogRepository;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.waterOrderLogMapper = waterOrderLogMapper;
     }
 
     @EventListener
@@ -37,9 +53,15 @@ public class EventHandlerService {
             waterOrderReferenced.setOrderStatus(Status.Started);
 
             waterOrderRepository.save(waterOrderReferenced);
-            System.out.println("Start Complete");
+
+            WaterOrderLog waterOrderLogToCreate = waterOrderLogMapper.constructWaterOrderLog(waterOrderReferenced);
+            waterOrderLogRepository.save(waterOrderLogToCreate);
+
+
 
             schedulerService.removeTaskFromQueue(waterOrderProcessed);
+
+            System.out.println("Start Complete");
 
             schedulerService.setApplicationEventPublisher(this.applicationEventPublisher);
             schedulerService.scheduleEndTask(waterOrderReferenced);
@@ -56,6 +78,13 @@ public class EventHandlerService {
             waterOrderReferenced.setOrderStatus(Status.Delivered);
 
             waterOrderRepository.save(waterOrderReferenced);
+
+            WaterOrderLog waterOrderLogToCreate = waterOrderLogMapper.constructWaterOrderLog(waterOrderReferenced);
+            waterOrderLogRepository.save(waterOrderLogToCreate);
+
+            schedulerService.setApplicationEventPublisher(this.applicationEventPublisher);
+            schedulerService.removeTaskFromQueue(waterOrderProcessed);
+
             System.out.println("End Complete");
         }
     }
@@ -73,6 +102,11 @@ public class EventHandlerService {
         waterOrderReferenced.setOrderStatus(Status.Cancelled);
 
         waterOrderRepository.save(waterOrderReferenced);
+
+
+        WaterOrderLog waterOrderLogToCreate = waterOrderLogMapper.constructWaterOrderLog(waterOrderReferenced);
+        waterOrderLogRepository.save(waterOrderLogToCreate);
+
         System.out.println("Cancel Complete");
 
     }

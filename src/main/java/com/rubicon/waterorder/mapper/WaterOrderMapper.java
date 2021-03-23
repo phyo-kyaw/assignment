@@ -14,8 +14,9 @@ import java.time.format.DateTimeFormatter;
 public class WaterOrderMapper {
 
 
-    public WaterOrder constructWaterOrder(WaterOrderData waterOrderData, WaterOrder waterOrder){
+    public WaterOrder constructWaterOrder(WaterOrderData waterOrderData){
 
+        WaterOrder waterOrder = new WaterOrder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         waterOrder.setId(waterOrderData.getId());

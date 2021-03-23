@@ -58,14 +58,8 @@ public class WaterOrderService {
         List<WaterOrder> waterOrderListBefore = new ArrayList<>();
         List<WaterOrder> waterOrderListAfter = new ArrayList<>();
 
-        System.out.println(startDateTimeConsidered.toString());
-        System.out.println(endDateTimeConsidered.toString());
-        System.out.println(waterOrderData.toString());
-
-
-
         waterOrderListBefore = waterOrderRepo
-                .findAllByStartDateTimeBetweenOrderByStartDateTimeDesc(startDateTimeConsidered, end);
+                .findByFarmIdAndByStartDateTimeBetweenOrderByStartDateTimeDesc(waterOrderData.getFarmId(), startDateTimeConsidered, end);
 
         if (waterOrderListBefore.size() >= 1) {
             WaterOrder waterOrderConsidered = waterOrderListBefore.get(0);
@@ -73,7 +67,7 @@ public class WaterOrderService {
         }
 
         waterOrderListAfter = waterOrderRepo.
-                findAllByStartDateTimeBetweenOrderByStartDateTimeAsc(start, endDateTimeConsidered);
+                findByFarmIdAndByStartDateTimeBetweenOrderByStartDateTimeAsc(waterOrderData.getFarmId(), start, endDateTimeConsidered);
 
         if(waterOrderListAfter.size() >= 1) {
             WaterOrder waterOrderConsidered = waterOrderListAfter.get(0);

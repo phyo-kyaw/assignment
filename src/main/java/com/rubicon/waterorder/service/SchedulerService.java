@@ -50,7 +50,8 @@ public class SchedulerService {
         System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
                 + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
                 + " and will start at " + waterOrder.getStartDateTime().toString()
-                + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec) + ".");
+                + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec)
+                + " --- in next seconds " + delayInSec + ".");
 
         ScheduledFuture<TaskCompletePublisher> futureOrder = executor.schedule(waterOrderScheduleTask, delayInSec, TimeUnit.SECONDS);
 
@@ -77,7 +78,7 @@ public class SchedulerService {
                 + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
                 +  " = " + waterOrder.getStartDateTime().toString()
                 + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec).toString()
-                + " --- in seconds " + delayInSec + ".");
+                + " --- in next seconds " + delayInSec + ".");
 
         ScheduledFuture<TaskCompletePublisher> futureOrder = executor.schedule(waterOrderScheduleTask, delayInSec, TimeUnit.SECONDS);
         scheduledOrderList.put( waterOrder.getId(), futureOrder);
@@ -104,10 +105,6 @@ public class SchedulerService {
         removeTaskFromQueue(waterOrder);
         return true;
 
-    }
-
-    public void test(String waterOrderId){
-        System.out.println("Test in SchedulerService: wo_id " + waterOrderId);
     }
 
     public void removeTaskFromQueue(WaterOrder waterOrder){
