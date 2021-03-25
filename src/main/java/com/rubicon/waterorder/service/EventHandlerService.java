@@ -14,8 +14,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class EventHandlerService {
 
@@ -45,6 +43,7 @@ public class EventHandlerService {
 
     @EventListener
     void onStartTaskComplete(WaterOrderStartTaskEvent waterOrderStartTaskEvent){
+
         WaterOrder waterOrderProcessed = waterOrderStartTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
 
@@ -57,19 +56,16 @@ public class EventHandlerService {
             WaterOrderLog waterOrderLogToCreate = waterOrderLogMapper.constructWaterOrderLog(waterOrderReferenced);
             waterOrderLogRepository.save(waterOrderLogToCreate);
 
-
-
-            schedulerService.removeTaskFromQueue(waterOrderProcessed);
-
-            System.out.println("Start Complete");
-
             schedulerService.setApplicationEventPublisher(this.applicationEventPublisher);
+            schedulerService.removeTaskFromQueue(waterOrderProcessed);
             schedulerService.scheduleEndTask(waterOrderReferenced);
+
         }
     }
 
     @EventListener
     void onEndTaskComplete(WaterOrderEndTaskEvent waterOrderEndTaskEvent){
+
         WaterOrder waterOrderProcessed = waterOrderEndTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
 
@@ -85,7 +81,6 @@ public class EventHandlerService {
             schedulerService.setApplicationEventPublisher(this.applicationEventPublisher);
             schedulerService.removeTaskFromQueue(waterOrderProcessed);
 
-            System.out.println("End Complete");
         }
     }
 
@@ -106,8 +101,6 @@ public class EventHandlerService {
 
         WaterOrderLog waterOrderLogToCreate = waterOrderLogMapper.constructWaterOrderLog(waterOrderReferenced);
         waterOrderLogRepository.save(waterOrderLogToCreate);
-
-        System.out.println("Cancel Complete");
 
     }
 }

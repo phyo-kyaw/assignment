@@ -12,6 +12,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+import static java.time.LocalDateTime.parse;
+
 @Entity
 public class WaterOrder {
 
@@ -35,6 +37,13 @@ public class WaterOrder {
     public WaterOrder() {
     }
 
+    public WaterOrder(Long id, Long farmId, LocalDateTime startDateTime, Duration flowDuration, Status orderStatus) {
+        this.id = id;
+        this.farmId = farmId;
+        this.startDateTime = startDateTime;
+        this.flowDuration = flowDuration;
+        this.orderStatus = orderStatus;
+    }
 
     public WaterOrder(Long id, Long farmId, LocalDateTime startDateTime, Long flowDurationInSec, Status orderStatus) {
         this.id = id;
@@ -47,8 +56,16 @@ public class WaterOrder {
     public WaterOrder(Long id, Long farmId, String startDateTime, Long flowDurationInSec, Status orderStatus) {
         this.id = id;
         this.farmId = farmId;
-        this.startDateTime = LocalDateTime.parse(startDateTime);
+        this.startDateTime = parse(startDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         this.flowDuration = Duration.ofSeconds(flowDurationInSec);
+        this.orderStatus = orderStatus;
+    }
+
+    public WaterOrder(Long id, Long farmId, String startDateTime, String flowDuration, Status orderStatus) {
+        this.id = id;
+        this.farmId = farmId;
+        this.startDateTime = parse(startDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.flowDuration = Duration.parse(flowDuration);
         this.orderStatus = orderStatus;
     }
 
@@ -102,7 +119,12 @@ public class WaterOrder {
                 "id=" + id +
                 ", farmId=" + farmId +
                 ", startDateTime=" + formatDateTime +
-                ", flowDurationInSec=" + flowDuration.getSeconds() +
+                ", flowDuration=" + flowDuration +
+/*                ", flowDurationInSec=" + String.format("%02d %20d:%02d:%02d",
+                                                    flowDuration.toDaysPart(),
+                                                    flowDuration.toHoursPart(),
+                                                    flowDuration.toMinutesPart(),
+                                                    flowDuration.toSecondsPart()) +*/
                 ", orderStatus=" + orderStatus +
                 '}';
     }

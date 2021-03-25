@@ -9,22 +9,22 @@ public class WaterOrderData {
 
     private String startDateTime;
 
-    private Long flowDuration;
+    private String flowDuration;
 
-    private  Status orderStatus;
+    private  String orderStatus;
 
 
     public WaterOrderData() {
     }
 
-    public WaterOrderData(Long farmId, String startDateTime, Long flowDuration, Status orderStatus) {
+    public WaterOrderData(Long farmId, String startDateTime, String flowDuration, String orderStatus) {
         this.farmId = farmId;
         this.startDateTime = startDateTime;
         this.flowDuration = flowDuration;
         this.orderStatus = orderStatus;
     }
 
-    public WaterOrderData(Long id, Long farmId, String startDateTime, Long flowDuration, Status orderStatus) {
+    public WaterOrderData(Long id, Long farmId, String startDateTime, String flowDuration, String orderStatus) {
         this.id = id;
         this.farmId = farmId;
         this.startDateTime = startDateTime;
@@ -44,11 +44,11 @@ public class WaterOrderData {
         return startDateTime;
     }
 
-    public Long getFlowDuration() {
+    public String getFlowDuration() {
         return flowDuration;
     }
 
-    public Status getOrderStatus() {
+    public String getOrderStatus() {
         return orderStatus;
     }
 
@@ -64,11 +64,11 @@ public class WaterOrderData {
         this.startDateTime = startDateTime;
     }
 
-    public void setFlowDuration(Long flowDuration) {
+    public void setFlowDuration(String flowDuration) {
         this.flowDuration = flowDuration;
     }
 
-    public void setOrderStatus(Status orderStatus) {
+    public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
     }
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -35,7 +36,7 @@ public class SchedulerService {
         return INSTANCE;
     }
 
-    //ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+
     public void scheduleStartTask(WaterOrder waterOrder){
 
         if(isInQueue(waterOrder)){
@@ -48,7 +49,8 @@ public class SchedulerService {
         ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
         Long delayInSec = Duration.between(LocalDateTime.now(), waterOrder.getStartDateTime()).getSeconds();
         System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
-                + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
+                + waterOrder.getOrderStatus() + " status at (machine date)"
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                 + " and will start at " + waterOrder.getStartDateTime().toString()
                 + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec)
                 + " --- in next seconds " + delayInSec + ".");
@@ -72,11 +74,12 @@ public class SchedulerService {
         TaskCompletePublisher taskCompletePublisher = new TaskCompletePublisher(waterOrder);
         taskCompletePublisher.setApplicationEventPublisher(this.applicationEventPublisher);
         ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
-        //Long delayInSec = Duration.between(LocalDateTime.now(), waterOrder.getStartDateTime()).getSeconds();
+
         Long delayInSec = waterOrder.getFlowDuration().getSeconds();
         System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
-                + waterOrder.getOrderStatus() + " status at " + LocalDateTime.now().toString()
-                +  " = " + waterOrder.getStartDateTime().toString()
+                + waterOrder.getOrderStatus() + " status at (machine date)"
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                +  " = " + waterOrder.getStartDateTime().toString() + " (schduled date) "
                 + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec).toString()
                 + " --- in next seconds " + delayInSec + ".");
 
@@ -84,7 +87,7 @@ public class SchedulerService {
         scheduledOrderList.put( waterOrder.getId(), futureOrder);
     }
 
-    public boolean cancelTask(WaterOrder waterOrder){
+    public synchronized boolean cancelTask(WaterOrder waterOrder){
         if(!isInQueue(waterOrder)){
             System.out.println("Water Order [" + waterOrder.getId() + "] is not in queue. Please investigate.");
             return false;
@@ -108,7 +111,10 @@ public class SchedulerService {
     }
 
     public void removeTaskFromQueue(WaterOrder waterOrder){
-        scheduledOrderList.remove(waterOrder.getId());
+        if(isInQueue(waterOrder))
+            scheduledOrderList.remove(waterOrder.getId());
+        else
+            System.out.println("Water Order Id [" + waterOrder.getId() + " is not in queue.");
     }
 }
 

@@ -2,6 +2,7 @@ package com.rubicon.waterorder.event;
 
 import com.rubicon.waterorder.model.WaterOrder;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.stereotype.Component;
 
 public class WaterOrderCancelTaskEvent extends ApplicationEvent {
 

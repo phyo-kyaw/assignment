@@ -13,6 +13,8 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class WaterOrderMapper {
 
+    public WaterOrderMapper() {
+    }
 
     public WaterOrder constructWaterOrder(WaterOrderData waterOrderData){
 
@@ -22,8 +24,8 @@ public class WaterOrderMapper {
         waterOrder.setId(waterOrderData.getId());
         waterOrder.setFarmId(waterOrderData.getFarmId());
         waterOrder.setStartDateTime(LocalDateTime.parse(waterOrderData.getStartDateTime(), formatter));
-        waterOrder.setFlowDuration(Duration.ofSeconds(waterOrderData.getFlowDuration()));
-        waterOrder.setOrderStatus(waterOrderData.getOrderStatus());
+        waterOrder.setFlowDuration(Duration.parse(waterOrderData.getFlowDuration()));
+        waterOrder.setOrderStatus(Status.valueOf(waterOrderData.getOrderStatus()));
         return waterOrder;
     }
 }

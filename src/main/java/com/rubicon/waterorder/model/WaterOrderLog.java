@@ -7,6 +7,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static java.time.LocalDateTime.parse;
+
 @Entity
 public class WaterOrderLog {
 
@@ -15,6 +17,7 @@ public class WaterOrderLog {
     private Long id;
 
     @ManyToOne
+    //@JoinColumn(name = "WATER_ORDER_ID", referencedColumnName = "ID")
     private WaterOrder waterOrder;
 
     @Enumerated(EnumType.STRING)
@@ -30,6 +33,13 @@ public class WaterOrderLog {
         this.waterOrder = waterOrder;
         this.orderStatus = orderStatus;
         this.createdDateTime = createdDateTime;
+    }
+
+    public WaterOrderLog(Long id, WaterOrder waterOrder, Status orderStatus, String createdDateTime) {
+        this.id = id;
+        this.waterOrder = waterOrder;
+        this.orderStatus = orderStatus;
+        this.createdDateTime = parse(createdDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public Long getId() {
@@ -66,6 +76,7 @@ public class WaterOrderLog {
 
     @Override
     public String toString() {
+        System.out.println("Log toString ***************** -> " + id);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formatDateTime = createdDateTime.format(formatter);
 

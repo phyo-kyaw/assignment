@@ -1,11 +1,15 @@
 package com.rubicon.waterorder.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.rubicon.waterorder.model.WaterOrder;
 import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.model.WaterOrderLog;
 import com.rubicon.waterorder.repository.WaterOrderLogRepository;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
 import com.rubicon.waterorder.service.WaterOrderProcessor;
+import com.rubicon.waterorder.service.WaterOrderTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -23,6 +27,8 @@ public class WaterOrderController {
 
     WaterOrderProcessor waterOrderProcessor;
 
+    WaterOrderTest waterOrderTest;
+
 
     public WaterOrderController() {
 
@@ -31,36 +37,23 @@ public class WaterOrderController {
     @Autowired
     public WaterOrderController(WaterOrderRepository waterOrderRepository,
                                 WaterOrderLogRepository waterOrderLogRepository,
+                                WaterOrderTest waterOrderTest,
                                 WaterOrderProcessor waterOrderProcessor) {
         this.waterOrderRepository = waterOrderRepository;
         this.waterOrderLogRepository = waterOrderLogRepository;
+        this.waterOrderTest = waterOrderTest;
         this.waterOrderProcessor = waterOrderProcessor;
     }
 
-
-    @GetMapping("/farm/{farmId}/orderLog")
-    public List<WaterOrderLog> getOrderLogs(Long farmId) {
-        return waterOrderLogRepository.findAll();
-    }
-
-    @GetMapping("/order")
-    public List<WaterOrder> getOrders() {
-        return waterOrderRepository.findAll();
-    }
-
-    @GetMapping("/order/{orderId}")
-    public WaterOrder getOrderById(@PathVariable Long orderId) {
-
-        return waterOrderRepository.findById(orderId).get();
-    }
 
     @PostMapping("/farm/{farmId}/order")
     public ResponseEntity<Void> createOrder(
             @PathVariable Long farmId,
             @RequestBody WaterOrderData waterOrderData){
-        System.out.println("1 ");
+
         boolean isSuccess = waterOrderProcessor.createOrder(farmId, waterOrderData);
-        System.out.println("2 " + isSuccess);
+        //return new ResponseEntity<Void>(HttpStatus.OK);
+
         if(isSuccess){
             return new ResponseEntity<Void>(HttpStatus.OK);
         }
@@ -85,16 +78,76 @@ public class WaterOrderController {
     }
 
     @GetMapping("/farm/{farmId}/order/{orderId}")
-    public List<WaterOrder> getOrders(@PathVariable Long orderId, @PathVariable Long farmId) {
+    public List<WaterOrder> getOrder(@PathVariable Long orderId, @PathVariable Long farmId) {
 
         return waterOrderRepository.findByIdAndFarmId(orderId, farmId);
+    }
+
+    @GetMapping("/farm/{farmId}/orderLog")
+    public List<WaterOrderLog> getOrderLogs(@PathVariable Long farmId) {
+        System.out.println(farmId);
+        return waterOrderProcessor.findBy_farmId(farmId);
+    }
+
+    //not working
+/*    @GetMapping("/farm/{farmId}/waterOrderLog")
+    public List<WaterOrderLog> getOrderLogs2(@PathVariable Long farmId) {
+        System.out.println(farmId);
+        return waterOrderLogRepository.findBy_farmId1(farmId);
+    }*/
+
+    //working
+    @GetMapping("/farm/{farmId}/waterOrderLogs")
+    public List<WaterOrderLog> getWaterOrderLogs(@PathVariable Long farmId) {
+        System.out.println(farmId);
+        return waterOrderLogRepository.findBy_farmId(farmId);
+    }
+
+/*    @GetMapping("/farm/{farmId}/waterOrder")
+    public List<WaterOrder> getOrderLogs1(@PathVariable Long farmId) {
+        System.out.println(farmId);
+        return waterOrderRepository.findBy_farmId(farmId);
+    }*/
+
+    @GetMapping("/orders")
+    public List<WaterOrder> getOrders() {
+        return waterOrderRepository.findAll();
+    }
+
+    @GetMapping("/orderLogs")
+    public List<WaterOrderLog> getOrderLogs() {
+        return waterOrderLogRepository.findAll();
+    }
+
+
+    @GetMapping("/order/{orderId}")
+    public WaterOrder getOrderById(@PathVariable Long orderId) {
+
+        return waterOrderRepository.findById(orderId).get();
     }
 
     @GetMapping("farm/{farmId}/test")
     public String test(@PathVariable Long farmId) {
 
+
+        waterOrderTest.test(farmId);
+
         return "Test executed. please check on console log.";
 
     }
+
+    @GetMapping("test")
+    public String test1() throws InterruptedException {
+
+
+        waterOrderProcessor.test();
+
+        return "Test executed. please check on console log.";
+
+    }
+
+
+
+
 
 }

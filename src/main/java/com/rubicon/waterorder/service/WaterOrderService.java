@@ -18,8 +18,6 @@ public class WaterOrderService {
 
     WaterOrderRepository waterOrderRepo;
 
-    SchedulerService schedulerService = SchedulerService.getInstance();
-
     @Autowired
     public WaterOrderService(WaterOrderRepository waterOrderRepo) {
         this.waterOrderRepo = waterOrderRepo;
@@ -39,7 +37,7 @@ public class WaterOrderService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         LocalDateTime start = LocalDateTime.parse(waterOrderData.getStartDateTime(),formatter);
-        LocalDateTime end = start.plus(Duration.ofSeconds(waterOrderData.getFlowDuration()));
+        LocalDateTime end = start.plus(Duration.parse(waterOrderData.getFlowDuration()));
 
         LocalDateTime startDateTimeConsidered = start
                 .toLocalDate()
@@ -87,7 +85,6 @@ public class WaterOrderService {
         boolean isOverlapped = isOverlapping(start, end, start2, end2);
 
         if (isOverlapped) {
-            System.out.println("overlapped");
             return true;
         }
         return false;

@@ -13,6 +13,8 @@ import static java.time.LocalDateTime.now;
 @Component
 public class WaterOrderLogMapper {
 
+    public WaterOrderLogMapper() {
+    }
 
     public WaterOrderLog constructWaterOrderLog(WaterOrder waterOrder){
 
