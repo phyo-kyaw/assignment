@@ -7,26 +7,18 @@ import com.rubicon.waterorder.model.*;
 import com.rubicon.waterorder.repository.WaterOrderLogRepository;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
 import com.rubicon.waterorder.service.WaterOrderProcessor;
-import com.rubicon.waterorder.service.WaterOrderTest;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatcher;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.Charset;
@@ -63,8 +55,6 @@ class WaterOrderControllerTest {
     @Mock
     WaterOrderProcessor waterOrderProcessor;
 
-    @Mock
-    WaterOrderTest waterOrderTest;
 
     @InjectMocks
     WaterOrderController controller;

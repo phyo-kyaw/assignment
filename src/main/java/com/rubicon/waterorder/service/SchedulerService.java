@@ -3,6 +3,7 @@ package com.rubicon.waterorder.service;
 import com.rubicon.waterorder.event.TaskCompletePublisher;
 import com.rubicon.waterorder.event.WaterOrderCancelTaskEvent;
 import com.rubicon.waterorder.model.WaterOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 @Service
+@Slf4j
 public class SchedulerService {
 
     private ApplicationEventPublisher applicationEventPublisher;
@@ -40,7 +42,7 @@ public class SchedulerService {
     public void scheduleStartTask(WaterOrder waterOrder){
 
         if(isInQueue(waterOrder)){
-            System.out.println("Water Order [" + waterOrder.getId() + "] is in queue. Please investigate.");
+            log.error("Water Order [" + waterOrder.getId() + "] is in queue. Please investigate.");
             return;
         }
 
@@ -48,7 +50,7 @@ public class SchedulerService {
         taskCompletePublisher.setApplicationEventPublisher(this.applicationEventPublisher);
         ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
         Long delayInSec = Duration.between(LocalDateTime.now(), waterOrder.getStartDateTime()).getSeconds();
-        System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
+        log.info("Water Order [" + waterOrder.getId() + "] scheduled from : "
                 + waterOrder.getOrderStatus() + " status at (machine date)"
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                 + " and will start at " + waterOrder.getStartDateTime().toString()
@@ -67,7 +69,7 @@ public class SchedulerService {
     public void scheduleEndTask(WaterOrder waterOrder){
 
         if(isInQueue(waterOrder)){
-            System.out.println("Water Order [" + waterOrder.getId() + "] is in queue. Please investigate.");
+            log.error("Water Order [" + waterOrder.getId() + "] is in queue. Please investigate.");
             return;
         }
 
@@ -76,7 +78,7 @@ public class SchedulerService {
         ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
 
         Long delayInSec = waterOrder.getFlowDuration().getSeconds();
-        System.out.println("Water Order [" + waterOrder.getId() + "] scheduled from : "
+        log.info("Water Order [" + waterOrder.getId() + "] scheduled from : "
                 + waterOrder.getOrderStatus() + " status at (machine date)"
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                 +  " = " + waterOrder.getStartDateTime().toString() + " (schduled date) "
@@ -89,19 +91,19 @@ public class SchedulerService {
 
     public synchronized boolean cancelTask(WaterOrder waterOrder){
         if(!isInQueue(waterOrder)){
-            System.out.println("Water Order [" + waterOrder.getId() + "] is not in queue. Please investigate.");
+            log.error("Water Order [" + waterOrder.getId() + "] is not in queue. Please investigate.");
             return false;
         }
 
         ScheduledFuture<TaskCompletePublisher> futureOrder = scheduledOrderList.get(waterOrder.getId());
         if(futureOrder.isDone() == false)
         {
-            System.out.println("====Cancelling the task====");
+            log.debug("====Cancelling the task====");
         }
         boolean cancelReturn = futureOrder.cancel(true);
         if(!cancelReturn)
         {
-            System.out.println("====Cancelling the task failed. It might has already been delivered====");
+            log.debug("====Cancelling the task failed. It might has already been delivered====");
             return false;
         }
         applicationEventPublisher.publishEvent(new WaterOrderCancelTaskEvent(this, waterOrder));
@@ -114,7 +116,7 @@ public class SchedulerService {
         if(isInQueue(waterOrder))
             scheduledOrderList.remove(waterOrder.getId());
         else
-            System.out.println("Water Order Id [" + waterOrder.getId() + " is not in queue.");
+            log.error("Water Order Id [" + waterOrder.getId() + " is not in queue.");
     }
 }
 

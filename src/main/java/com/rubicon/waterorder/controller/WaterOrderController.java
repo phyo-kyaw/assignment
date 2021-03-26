@@ -1,17 +1,12 @@
 package com.rubicon.waterorder.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.rubicon.waterorder.model.WaterOrder;
 import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.model.WaterOrderLog;
 import com.rubicon.waterorder.repository.WaterOrderLogRepository;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
 import com.rubicon.waterorder.service.WaterOrderProcessor;
-import com.rubicon.waterorder.service.WaterOrderTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +22,6 @@ public class WaterOrderController {
 
     WaterOrderProcessor waterOrderProcessor;
 
-    WaterOrderTest waterOrderTest;
 
 
     public WaterOrderController() {
@@ -37,11 +31,9 @@ public class WaterOrderController {
     @Autowired
     public WaterOrderController(WaterOrderRepository waterOrderRepository,
                                 WaterOrderLogRepository waterOrderLogRepository,
-                                WaterOrderTest waterOrderTest,
                                 WaterOrderProcessor waterOrderProcessor) {
         this.waterOrderRepository = waterOrderRepository;
         this.waterOrderLogRepository = waterOrderLogRepository;
-        this.waterOrderTest = waterOrderTest;
         this.waterOrderProcessor = waterOrderProcessor;
     }
 
@@ -125,29 +117,5 @@ public class WaterOrderController {
 
         return waterOrderRepository.findById(orderId).get();
     }
-
-    @GetMapping("farm/{farmId}/test")
-    public String test(@PathVariable Long farmId) {
-
-
-        waterOrderTest.test(farmId);
-
-        return "Test executed. please check on console log.";
-
-    }
-
-    @GetMapping("test")
-    public String test1() throws InterruptedException {
-
-
-        waterOrderProcessor.test();
-
-        return "Test executed. please check on console log.";
-
-    }
-
-
-
-
 
 }

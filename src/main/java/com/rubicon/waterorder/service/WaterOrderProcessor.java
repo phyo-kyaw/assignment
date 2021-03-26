@@ -9,6 +9,7 @@ import com.rubicon.waterorder.model.WaterOrderLog;
 import com.rubicon.waterorder.repository.WaterOrderLogRepository;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
 import com.rubicon.waterorder.validator.WaterOrderValidator;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Service
+@Slf4j
 public class WaterOrderProcessor {
 
     WaterOrderRepository waterOrderRepository;
@@ -74,17 +76,17 @@ public class WaterOrderProcessor {
         this.waterOrderLogMapper = waterOrderLogMapper;
     }
 
-    public boolean createOrder(Long farmId, WaterOrderData waterOrderData){
+    public boolean createOrder(Long farmId, WaterOrderData waterOrderData) {
 
-        if(!waterOrderValidator.isValidDate(waterOrderData.getStartDateTime())){
+        if (!waterOrderValidator.isValidDate(waterOrderData.getStartDateTime())) {
             return false;
         }
 
-        if(!waterOrderValidator.isFutureDate(waterOrderData.getStartDateTime())){
+        if (!waterOrderValidator.isFutureDate(waterOrderData.getStartDateTime())) {
             return false;
         }
 
-        if(waterOrderValidator.isOrderOverlap(waterOrderData)){
+        if (waterOrderValidator.isOrderOverlap(waterOrderData)) {
             return false;
         }
 
@@ -104,13 +106,13 @@ public class WaterOrderProcessor {
 
         //requested waterOrderData must be with cancel status
         if (!waterOrderData.getOrderStatus().toString().equals(Status.Cancelled.toString())) {
-            System.out.println("**** not Cancelled!");
+            log.error("Incoming Water Order Id : [" + waterOrderData.getId() + "] is not in Cancelled state.");
             return false;
         }
 
         //check with db if it's been delivered or cancelled.
         if (waterOrderValidator.isDeliveredOrCancelled(waterOrderData)) {
-            System.out.println("**** Cancelled or delivered!");
+            log.error("Water Order Id : [" + waterOrderData.getId() + "] is in Delivered or Cancelled state.");
             return false;
         }
 
@@ -119,52 +121,20 @@ public class WaterOrderProcessor {
         //scheduler to cancel the task
         schedulerService.setApplicationEventPublisher(this.publisher);
         schedulerService.cancelTask(waterOrderToCancel);
+        log.info("Water Order Id : [" + waterOrderData.getId() + "] is going to be Cancelled.");
 
         return true;
     }
 
     public List<WaterOrderLog> findBy_farmId(Long farmId) {
-        //Query query = (Query) entityManager.createQuery("SELECT wol FROM WaterOrderLog wol Left JOIN wol.WaterOrder wol WHERE wo.farmId = :farmId");
+
         Query query = (Query) entityManager.createNativeQuery("select wol_.id , wol_.created_date_time, wol_.order_status, wol_.water_order_id from water_order_log wol_ inner join water_order wo_ on wol_.water_order_id=wo_.id where wo_.farm_id=?");
-        //query.setParameter("farmId", farmId);
         query.setParameter(1, farmId);
         System.out.println(query.getParameter(1).toString());
         List<WaterOrderLog> resultList = query.getResultList();
         System.out.println("JPA " + resultList.size());
 
-
         return resultList;
     }
 
-    public void test() throws InterruptedException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        WaterOrder waterOrder = new WaterOrder();
-        waterOrder = new WaterOrder( null, 1111L,now().plusSeconds(10).format(formatter), 10L, Status.Requested);
-
-        WaterOrder waterOrderSaved =  waterOrderRepository.save(waterOrder);
-
-        WaterOrderLog waterOrderLog = new WaterOrderLog();
-        waterOrderLog = new WaterOrderLog(null, waterOrder, waterOrder.getOrderStatus(), parse(now().format(formatter),formatter) );
-
-        WaterOrderLog waterOrderLogSaved = waterOrderLogRepository.save(waterOrderLog);
-
-        assertNotNull(waterOrderLogSaved);
-        assertEquals(Status.Requested, waterOrderLogSaved.getOrderStatus());
-        assertEquals(1, waterOrderLogRepository.findBy_farmId(1111L).size());
-
-        Thread.sleep(2000);
-
-        waterOrderSaved.setOrderStatus(Status.Started);
-        waterOrderSaved =  waterOrderRepository.save(waterOrder);
-
-        assertEquals(Status.Started, waterOrderSaved.getOrderStatus());
-
-
-        WaterOrderLog waterOrderLog1 = new WaterOrderLog(null, waterOrderSaved, waterOrderSaved.getOrderStatus(), parse(now().format(formatter),formatter) );
-
-        waterOrderLogSaved = waterOrderLogRepository.save(waterOrderLog1);
-        assertEquals(2, waterOrderLogRepository.findBy_farmId(1111L).size());
-
-    }
 }

@@ -9,12 +9,14 @@ import com.rubicon.waterorder.model.WaterOrder;
 import com.rubicon.waterorder.model.WaterOrderLog;
 import com.rubicon.waterorder.repository.WaterOrderLogRepository;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EventHandlerService {
 
     private WaterOrderRepository waterOrderRepository;
@@ -44,6 +46,8 @@ public class EventHandlerService {
     @EventListener
     void onStartTaskComplete(WaterOrderStartTaskEvent waterOrderStartTaskEvent){
 
+        log.debug("Water Order Id : [" + waterOrderStartTaskEvent.getWaterOrder().getId() + "] start task triggered.");
+
         WaterOrder waterOrderProcessed = waterOrderStartTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
 
@@ -66,6 +70,8 @@ public class EventHandlerService {
     @EventListener
     void onEndTaskComplete(WaterOrderEndTaskEvent waterOrderEndTaskEvent){
 
+        log.debug("Water Order Id : [" + waterOrderEndTaskEvent.getWaterOrder().getId() + "] end task triggered.");
+
         WaterOrder waterOrderProcessed = waterOrderEndTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
 
@@ -86,12 +92,15 @@ public class EventHandlerService {
 
     @EventListener
     void onCancelTaskComplete(WaterOrderCancelTaskEvent waterOrderCancelTaskEvent){
+
+        log.debug("Water Order Id : [" + waterOrderCancelTaskEvent.getWaterOrder().getId() + "] cancel task triggered.");
+
         WaterOrder waterOrderProcessed = waterOrderCancelTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
         String status = waterOrderReferenced.getOrderStatus().toString();
 
         if( status.equals(Status.Cancelled.toString()) || status.equals(Status.Delivered.toString()) ) {
-            System.out.println("The order has been delivered or cancelled");
+            log.error("The order has been delivered or cancelled.");
         }
 
         waterOrderReferenced.setOrderStatus(Status.Cancelled);

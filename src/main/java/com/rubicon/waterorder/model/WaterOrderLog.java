@@ -76,7 +76,7 @@ public class WaterOrderLog {
 
     @Override
     public String toString() {
-        System.out.println("Log toString ***************** -> " + id);
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formatDateTime = createdDateTime.format(formatter);
 

@@ -7,6 +7,7 @@ import com.rubicon.waterorder.model.WaterOrderData;
 //import org.assertj.core.api.Assert;
 import com.rubicon.waterorder.model.WaterOrderLog;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +42,7 @@ import static org.mockito.BDDMockito.given;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Order(5)
+@Slf4j
 class ___WaterOrderController_IT {
 
     @LocalServerPort
@@ -54,14 +56,6 @@ class ___WaterOrderController_IT {
 
 
     Long interestedJobId=0L;
-
-    @Test
-    void contextLoads() throws JsonEOFException {
-
-        String orderList = this.testRestTemplate.getForObject("/farm/112/order/1", String.class);
-
-        System.out.println("******** ->" + orderList.length());
-    }
 
     @Test
     @Order(1)
@@ -123,9 +117,9 @@ class ___WaterOrderController_IT {
         }
         catch(HttpClientErrorException ex)
         {
-            //Verify bad request and missing header
+            //Verify bad request
             assertEquals(400, ex.getRawStatusCode());
-            //assertEquals(true, ex.getResponseBodyAsString().contains("Missing request header"));
+
         }
 
     }
@@ -152,9 +146,9 @@ class ___WaterOrderController_IT {
         }
         catch(HttpClientErrorException ex)
         {
-            //Verify bad request and missing header
+            //Verify bad request
             assertEquals(400, ex.getRawStatusCode());
-            //assertEquals(true, ex.getResponseBodyAsString().contains("Missing request header"));
+
         }
 
     }
@@ -173,7 +167,6 @@ class ___WaterOrderController_IT {
 
         HttpEntity<WaterOrderData> request = new HttpEntity<>(wod1);
 
-
         try
         {
             restTemplate.postForEntity(uri, request, Void.class);
@@ -181,9 +174,8 @@ class ___WaterOrderController_IT {
         }
         catch(HttpClientErrorException ex)
         {
-            //Verify bad request and missing header
+            //Verify bad request
             assertEquals(400, ex.getRawStatusCode());
-            //assertEquals(true, ex.getResponseBodyAsString().contains("Missing request header"));
         }
 
     }
@@ -192,26 +184,14 @@ class ___WaterOrderController_IT {
     @Order(6)
     public void getOrder_total_2_orders_success() throws URISyntaxException {
 
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        //existing data in Repo
-        //WaterOrderData wod1 = new WaterOrderData(111L, 222L, now().plusSeconds(10).format(formatter), 10L, "Requested");
-
         RestTemplate restTemplate = new RestTemplate();
         final String baseUrl = "http://localhost:" + randomServerPort + "/orders" ;
         URI uri = new URI(baseUrl);
 
-        //HttpEntity<WaterOrderData> request = new HttpEntity<>(wod1);
-        //WaterOrder waterOrder = new WaterOrder();
-        //HttpEntity<WaterOrder> entity = new HttpEntity<WaterOrder>(waterOrder);
-        //ResponseEntity<List<WaterOrder>> result = restTemplate.exchange(uri, HttpMethod.GET, entity, new ParameterizedTypeReference<List<WaterOrder>>() {});
-        //List<WaterOrder> waterOrders = result.getBody();
-
-        //ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
         ResponseEntity<List> result = restTemplate.getForEntity(uri, List.class);
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
         assertTrue(2 == result.getBody().size());
     }
 
@@ -220,25 +200,12 @@ class ___WaterOrderController_IT {
     @Order(7)
     public void getOrderLog_total_6_logs_success() throws URISyntaxException, InterruptedException {
 
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        //existing data in Repo
-        //WaterOrderData wod1 = new WaterOrderData(111L, 222L, now().plusSeconds(10).format(formatter), 10L, "Requested");
-
         RestTemplate restTemplate = new RestTemplate();
         final String baseUrl = "http://localhost:" + randomServerPort + "/orderLogs" ;
         URI uri = new URI(baseUrl);
 
-        //HttpEntity<WaterOrderData> request = new HttpEntity<>(wod1);
-
+        log.info("Waiting to complete scheduled tasks.");
         Thread.sleep(21000);
-
-/*        WaterOrderLog waterOrderLog = new WaterOrderLog();
-        HttpEntity<WaterOrderLog> entity = new HttpEntity<WaterOrderLog>(waterOrderLog);
-        ResponseEntity<List<WaterOrderLog>> result = restTemplate.exchange(uri, HttpMethod.GET, entity, new ParameterizedTypeReference<List<WaterOrderLog>>() {});
-        List<WaterOrderLog> waterOrderLogs = result.getBody();*/
-
-        //ResponseEntity<List> result = restTemplate.getForEntity(uri, List.class);
-        //List<WaterOrderLog> waterOrderLogs = result.getBody();
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(null);
 
@@ -249,7 +216,7 @@ class ___WaterOrderController_IT {
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
+
         assertEquals(6, waterOrderLogs.size());
 
         Long count = waterOrderLogs
@@ -290,7 +257,6 @@ class ___WaterOrderController_IT {
         final String baseUrl = "http://localhost:" + randomServerPort + "/orders" ;
         URI uri = new URI(baseUrl);
 
-        //WaterOrder waterOrder = new WaterOrder(111L, 222L, now().plusSeconds(10).format(formatter), "PT10S", Status.Requested);
         HttpEntity<Void> requestEntity = new HttpEntity<>(null);
 
         List<WaterOrder> waterOrders = new ArrayList<>();
@@ -300,27 +266,8 @@ class ___WaterOrderController_IT {
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
-        assertTrue(3 == result.getBody().size());
+        assertTrue(3 == waterOrders.size());
 
-        WaterOrder maxObject = Collections.max(waterOrders, new Comparator<WaterOrder>() {
-            @Override
-            public int compare(WaterOrder o1, WaterOrder o2) {
-                if (o1.getId().longValue() == o2.getId().longValue()) {
-                    return 0;
-                } else if (o1.getId().longValue() < o2.getId().longValue()) {
-                    return -1;
-                } else if (o1.getId().longValue() > o2.getId().longValue()) {
-                    return 1;
-                }
-                return 0;
-            }
-        });
-
-        this.interestedJobId = maxObject.getId();
-        System.out.println("##################" + this.interestedJobId );
-                System.out.println("************ " + maxObject);
-        System.out.println("************ " + waterOrders);
     }
 
     //@Disabled
@@ -331,6 +278,7 @@ class ___WaterOrderController_IT {
         List<WaterOrder> waterOrders = new ArrayList<>();
         waterOrders = waterOrderRepository.findAll();
 
+        //obtain the max id
         WaterOrder maxObject = Collections.max(waterOrders, new Comparator<WaterOrder>() {
             @Override
             public int compare(WaterOrder o1, WaterOrder o2) {
@@ -347,7 +295,6 @@ class ___WaterOrderController_IT {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        System.out.println("############## " + maxObject.getId());
         WaterOrder wo1 = waterOrderRepository.findById(maxObject.getId()).get();
         WaterOrderData wod1 = new WaterOrderData(
                 wo1.getId(),
@@ -377,8 +324,6 @@ class ___WaterOrderController_IT {
         final String baseUrl = "http://localhost:" + randomServerPort + "/orderLogs" ;
         URI uri = new URI(baseUrl);
 
-        //ResponseEntity<List> result = restTemplate.getForEntity(uri, List.class);
-        //List<WaterOrderLog> waterOrderLogs = result.getBody();
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(null);
 
@@ -389,7 +334,7 @@ class ___WaterOrderController_IT {
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
+
         assertEquals(8, waterOrderLogs.size());
 
         Long count = waterOrderLogs
@@ -400,7 +345,6 @@ class ___WaterOrderController_IT {
         assertEquals(1L, count.longValue());
     }
 
-    /////////////////////////////
     @Test
     @Order(12)
     public void createOrder_4th_order_success() throws URISyntaxException {
@@ -431,7 +375,6 @@ class ___WaterOrderController_IT {
         final String baseUrl = "http://localhost:" + randomServerPort + "/orders" ;
         URI uri = new URI(baseUrl);
 
-        //WaterOrder waterOrder = new WaterOrder(111L, 222L, now().plusSeconds(10).format(formatter), "PT10S", Status.Requested);
         HttpEntity<Void> requestEntity = new HttpEntity<>(null);
 
         List<WaterOrder> waterOrders = new ArrayList<>();
@@ -441,27 +384,8 @@ class ___WaterOrderController_IT {
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
-        assertTrue(4 == result.getBody().size());
+        assertTrue(4 == waterOrders.size());
 
-        WaterOrder maxObject = Collections.max(waterOrders, new Comparator<WaterOrder>() {
-            @Override
-            public int compare(WaterOrder o1, WaterOrder o2) {
-                if (o1.getId().longValue() == o2.getId().longValue()) {
-                    return 0;
-                } else if (o1.getId().longValue() < o2.getId().longValue()) {
-                    return -1;
-                } else if (o1.getId().longValue() > o2.getId().longValue()) {
-                    return 1;
-                }
-                return 0;
-            }
-        });
-
-        this.interestedJobId = maxObject.getId();
-        System.out.println("##################" + this.interestedJobId );
-        System.out.println("************ " + maxObject);
-        System.out.println("************ " + waterOrders);
     }
 
     //@Disabled
@@ -488,7 +412,6 @@ class ___WaterOrderController_IT {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        System.out.println("############## " + maxObject.getId());
         WaterOrder wo1 = waterOrderRepository.findById(maxObject.getId()).get();
         WaterOrderData wod1 = new WaterOrderData(
                 wo1.getId(),
@@ -504,6 +427,7 @@ class ___WaterOrderController_IT {
 
         HttpEntity<WaterOrderData> request = new HttpEntity<>(wod1);
 
+        log.info("Waiting to start state to cancel.");
         Thread.sleep(2500);
 
         ResponseEntity<Void> result = restTemplate.exchange(uri, HttpMethod.PUT, request, Void.class);
@@ -520,9 +444,6 @@ class ___WaterOrderController_IT {
         final String baseUrl = "http://localhost:" + randomServerPort + "/orderLogs" ;
         URI uri = new URI(baseUrl);
 
-        //ResponseEntity<List> result = restTemplate.getForEntity(uri, List.class);
-        //List<WaterOrderLog> waterOrderLogs = result.getBody();
-
         HttpEntity<Void> requestEntity = new HttpEntity<>(null);
 
         List<WaterOrderLog> waterOrderLogs = new ArrayList<>();
@@ -532,7 +453,7 @@ class ___WaterOrderController_IT {
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
+
         assertEquals(11, waterOrderLogs.size());
 
         Long count = waterOrderLogs
@@ -543,7 +464,6 @@ class ___WaterOrderController_IT {
         assertEquals(2L, count.longValue());
     }
 
-    /////////////////////////////
     @Test
     @Order(16)
     public void createOrder_5th_order_success() throws URISyntaxException {
@@ -574,7 +494,6 @@ class ___WaterOrderController_IT {
         final String baseUrl = "http://localhost:" + randomServerPort + "/orders" ;
         URI uri = new URI(baseUrl);
 
-        //WaterOrder waterOrder = new WaterOrder(111L, 222L, now().plusSeconds(10).format(formatter), "PT10S", Status.Requested);
         HttpEntity<Void> requestEntity = new HttpEntity<>(null);
 
         List<WaterOrder> waterOrders = new ArrayList<>();
@@ -584,7 +503,7 @@ class ___WaterOrderController_IT {
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
+
         assertTrue(5 == result.getBody().size());
 
         WaterOrder maxObject = Collections.max(waterOrders, new Comparator<WaterOrder>() {
@@ -626,8 +545,6 @@ class ___WaterOrderController_IT {
         });
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        System.out.println("############## " + maxObject.getId());
         WaterOrder wo1 = waterOrderRepository.findById(maxObject.getId()).get();
         WaterOrderData wod1 = new WaterOrderData(
                 wo1.getId(),
@@ -643,6 +560,7 @@ class ___WaterOrderController_IT {
 
         HttpEntity<WaterOrderData> request = new HttpEntity<>(wod1);
 
+        log.info("Waiting to reach delivered state to cancel.");
         Thread.sleep(4500);
 
 
@@ -654,12 +572,12 @@ class ___WaterOrderController_IT {
         }
         catch(HttpClientErrorException ex)
         {
-            //Verify bad request and missing header
+            //Verify request failed
             assertEquals(400, ex.getRawStatusCode());
-            //assertEquals(true, ex.getResponseBodyAsString().contains("Missing request header"));
+
         }
 
-        //Verify request succeed
+        //Verify bad request
         //assertEquals(400, result.getStatusCodeValue());
     }
 
@@ -671,8 +589,6 @@ class ___WaterOrderController_IT {
         final String baseUrl = "http://localhost:" + randomServerPort + "/orderLogs" ;
         URI uri = new URI(baseUrl);
 
-        //ResponseEntity<List> result = restTemplate.getForEntity(uri, List.class);
-        //List<WaterOrderLog> waterOrderLogs = result.getBody();
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(null);
 
@@ -683,7 +599,6 @@ class ___WaterOrderController_IT {
 
         //Verify request succeed
         assertEquals(200, result.getStatusCodeValue());
-        System.out.println(result.getBody());
         assertEquals(14, waterOrderLogs.size());
 
         Long count = waterOrderLogs

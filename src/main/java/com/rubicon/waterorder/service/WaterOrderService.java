@@ -4,6 +4,7 @@ import com.rubicon.waterorder.model.Status;
 import com.rubicon.waterorder.model.WaterOrder;
 import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class WaterOrderService {
 
     WaterOrderRepository waterOrderRepo;
@@ -85,6 +87,7 @@ public class WaterOrderService {
         boolean isOverlapped = isOverlapping(start, end, start2, end2);
 
         if (isOverlapped) {
+            log.error("Water Order Id : [" + waterOrderConsidered.getId() + "] is overlapped with existing order.");
             return true;
         }
         return false;
