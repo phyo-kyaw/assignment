@@ -87,7 +87,7 @@ public class WaterOrderService {
         boolean isOverlapped = isOverlapping(start, end, start2, end2);
 
         if (isOverlapped) {
-            log.error("Water Order Id : [" + waterOrderConsidered.getId() + "] is overlapped with existing order.");
+            log.error("Water Order Request is overlapped with existing orders' timing.");
             return true;
         }
         return false;

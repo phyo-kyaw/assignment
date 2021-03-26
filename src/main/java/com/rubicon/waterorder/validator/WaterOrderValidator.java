@@ -2,6 +2,7 @@ package com.rubicon.waterorder.validator;
 
 import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.service.WaterOrderService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
+@Slf4j
 public class WaterOrderValidator {
 
     private WaterOrderService waterOrderService;
@@ -33,6 +35,7 @@ public class WaterOrderValidator {
         }
         catch(Exception ex)
         {
+            log.error("Water Order Request - please check the start date (valid date).");
             return false;
         }
     }
@@ -41,10 +44,17 @@ public class WaterOrderValidator {
 
         try{
             LocalDateTime date = LocalDateTime.parse(dateTime, formatter);
-            return LocalDateTime.now().isBefore(date);
+            if( LocalDateTime.now().isBefore(date) ){
+                return true;
+            }
+            else{
+                log.error("Water Order Request - please check the start date (no past date?).");
+                return false;
+            }
         }
         catch(Exception ex)
         {
+            log.error("Water Order Request - please check the start date (valid date?).");
             return false;
         }
 

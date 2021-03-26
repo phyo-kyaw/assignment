@@ -106,7 +106,7 @@ public class WaterOrderProcessor {
 
         //requested waterOrderData must be with cancel status
         if (!waterOrderData.getOrderStatus().toString().equals(Status.Cancelled.toString())) {
-            log.error("Incoming Water Order Id : [" + waterOrderData.getId() + "] is not in Cancelled state.");
+            log.error("Incoming Cancel Request : Water Order Id : [" + waterOrderData.getId() + "] is not in Cancelled state.");
             return false;
         }
 
@@ -118,10 +118,11 @@ public class WaterOrderProcessor {
 
         WaterOrder waterOrderToCancel = waterOrderMapper.constructWaterOrder(waterOrderData);
 
+        log.info("Water Order Id : [" + waterOrderData.getId() + "] is going to be Cancelled.");
         //scheduler to cancel the task
         schedulerService.setApplicationEventPublisher(this.publisher);
         schedulerService.cancelTask(waterOrderToCancel);
-        log.info("Water Order Id : [" + waterOrderData.getId() + "] is going to be Cancelled.");
+
 
         return true;
     }
@@ -136,5 +137,6 @@ public class WaterOrderProcessor {
 
         return resultList;
     }
+
 
 }

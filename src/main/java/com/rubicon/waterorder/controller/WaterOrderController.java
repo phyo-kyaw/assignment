@@ -6,6 +6,7 @@ import com.rubicon.waterorder.model.WaterOrderLog;
 import com.rubicon.waterorder.repository.WaterOrderLogRepository;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
 import com.rubicon.waterorder.service.WaterOrderProcessor;
+import com.rubicon.waterorder.service.WaterOrderTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class WaterOrderController {
 
     WaterOrderProcessor waterOrderProcessor;
 
+    WaterOrderTest waterOrderTest;
 
 
     public WaterOrderController() {
@@ -31,9 +33,11 @@ public class WaterOrderController {
     @Autowired
     public WaterOrderController(WaterOrderRepository waterOrderRepository,
                                 WaterOrderLogRepository waterOrderLogRepository,
+                                WaterOrderTest waterOrderTest,
                                 WaterOrderProcessor waterOrderProcessor) {
         this.waterOrderRepository = waterOrderRepository;
         this.waterOrderLogRepository = waterOrderLogRepository;
+        this.waterOrderTest = waterOrderTest;
         this.waterOrderProcessor = waterOrderProcessor;
     }
 
@@ -116,6 +120,15 @@ public class WaterOrderController {
     public WaterOrder getOrderById(@PathVariable Long orderId) {
 
         return waterOrderRepository.findById(orderId).get();
+    }
+
+    @GetMapping("test")
+    public String test() throws InterruptedException {
+
+        waterOrderTest.test(3333L);
+
+        return "Test executed. please check on console log.";
+
     }
 
 }
