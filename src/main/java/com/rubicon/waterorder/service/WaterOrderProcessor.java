@@ -106,19 +106,19 @@ public class WaterOrderProcessor {
 
         //requested waterOrderData must be with cancel status
         if (!waterOrderData.getOrderStatus().toString().equals(Status.Cancelled.toString())) {
-            log.error("Incoming Cancel Request : Water Order Id : [" + waterOrderData.getId() + "] is not in Cancelled state.");
+            log.error("Incoming Cancel Request : Water Order Id : [ " + waterOrderData.getId() + " ] is not in Cancelled state.");
             return false;
         }
 
         //check with db if it's been delivered or cancelled.
         if (waterOrderValidator.isDeliveredOrCancelled(waterOrderData)) {
-            log.error("Water Order Id : [" + waterOrderData.getId() + "] is in Delivered or Cancelled state.");
+            log.error("Water Order Id : [ " + waterOrderData.getId() + " ] is in Delivered or Cancelled state.");
             return false;
         }
 
         WaterOrder waterOrderToCancel = waterOrderMapper.constructWaterOrder(waterOrderData);
 
-        log.info("Water Order Id : [" + waterOrderData.getId() + "] is going to be Cancelled.");
+        log.info("Water Order Id : [ " + waterOrderData.getId() + " ] is going to be Cancelled.");
         //scheduler to cancel the task
         schedulerService.setApplicationEventPublisher(this.publisher);
         schedulerService.cancelTask(waterOrderToCancel);

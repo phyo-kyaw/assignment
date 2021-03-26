@@ -66,11 +66,11 @@ public class WaterOrderTest {
 
         log.info("********** TESTING ****************");
 
-        log.info("In TEST- 1st Order ** Created? " + waterOrderProcessor.createOrder(farmId, wod1) + " " + wod1.toString());
-        log.info("In TEST- 2nd Order ** Created? " + waterOrderProcessor.createOrder(farmId, wod2) + " " + wod2.toString());
-        log.info("In TEST- 3rd Order ** Created? " + waterOrderProcessor.createOrder(farmId, wod3) + " " + wod3.toString());
-        log.info("In TEST- 4th Order ** Created? " + waterOrderProcessor.createOrder(farmId, wod4) + " " + wod4.toString());
-        log.info("In TEST- 5th Order ** Created? " + waterOrderProcessor.createOrder(farmId, wod5) + " " + wod5.toString());
+        log.info("In TEST- 1st Order ** Created? -->" + waterOrderProcessor.createOrder(farmId, wod1) + " " + wod1.toString());
+        log.info("In TEST- 2nd Order ** Created? -->" + waterOrderProcessor.createOrder(farmId, wod2) + " " + wod2.toString());
+        log.info("In TEST- 3rd Order ** Created? -->" + waterOrderProcessor.createOrder(farmId, wod3) + " " + wod3.toString());
+        log.info("In TEST- 4th Order ** Created? -->" + waterOrderProcessor.createOrder(farmId, wod4) + " " + wod4.toString());
+        log.info("In TEST- 5th Order ** Created? -->" + waterOrderProcessor.createOrder(farmId, wod5) + " " + wod5.toString());
 
         System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
@@ -106,7 +106,7 @@ public class WaterOrderTest {
 
         WaterOrderMapper waterOrderMapper = new WaterOrderMapper();
 
-        log.info("In TEST- CANCELLING AGAIN in BACKEND -- must fail ******* Water Order Id - [ " + wod6.getId() + " ]");
+        log.info("In TEST- CANCELLING AGAIN in Scheduler -- must fail ******* Water Order Id - [ " + wod6.getId() + " ]");
         schedulerService.setApplicationEventPublisher(publisher);
         schedulerService.cancelTask(waterOrder);
 

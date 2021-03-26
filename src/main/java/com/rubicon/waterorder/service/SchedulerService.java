@@ -42,7 +42,7 @@ public class SchedulerService {
     public void scheduleStartTask(WaterOrder waterOrder){
 
         if(isInQueue(waterOrder)){
-            log.error("Water Order [" + waterOrder.getId() + "] is in queue. Please investigate.");
+            log.error("Water Order [ " + waterOrder.getId() + " ] is in queue. Please investigate.");
             return;
         }
 
@@ -50,8 +50,8 @@ public class SchedulerService {
         taskCompletePublisher.setApplicationEventPublisher(this.applicationEventPublisher);
         ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
         Long delayInSec = Duration.between(LocalDateTime.now(), waterOrder.getStartDateTime()).getSeconds();
-        log.info("Water Order [" + waterOrder.getId() + "] scheduled from : "
-                + waterOrder.getOrderStatus() + " status at (machine date)"
+        log.info("Water Order [ " + waterOrder.getId() + " ] scheduled from : "
+                + waterOrder.getOrderStatus() + " status at (machine date) "
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                 + " and will start at " + waterOrder.getStartDateTime().toString()
                 + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec)
@@ -69,7 +69,7 @@ public class SchedulerService {
     public void scheduleEndTask(WaterOrder waterOrder){
 
         if(isInQueue(waterOrder)){
-            log.error("Water Order [" + waterOrder.getId() + "] is in queue. Please investigate.");
+            log.error("Water Order [ " + waterOrder.getId() + " ] is in queue. Please investigate.");
             return;
         }
 
@@ -78,10 +78,10 @@ public class SchedulerService {
         ScheduleTask waterOrderScheduleTask = new ScheduleTask(taskCompletePublisher);
 
         Long delayInSec = waterOrder.getFlowDuration().getSeconds();
-        log.info("Water Order [" + waterOrder.getId() + "] scheduled from : "
-                + waterOrder.getOrderStatus() + " status at (machine date)"
+        log.info("Water Order [ " + waterOrder.getId() + " ] scheduled from : "
+                + waterOrder.getOrderStatus() + " status at (machine date) "
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                +  " = " + waterOrder.getStartDateTime().toString() + " (schduled date) "
+                +  " = " + waterOrder.getStartDateTime().toString() + " (scheduled date) "
                 + " and will end at " + waterOrder.getStartDateTime().plusSeconds(delayInSec).toString()
                 + " --- in next seconds " + delayInSec + ".");
 
@@ -91,23 +91,25 @@ public class SchedulerService {
 
     public synchronized boolean cancelTask(WaterOrder waterOrder){
         if(!isInQueue(waterOrder)){
-            log.error("Water Order [" + waterOrder.getId() + "] is not in queue. Please investigate.");
+            log.error("Water Order [ " + waterOrder.getId() + " ] is not in queue. Please investigate.");
             return false;
         }
 
         ScheduledFuture<TaskCompletePublisher> futureOrder = scheduledOrderList.get(waterOrder.getId());
         if(futureOrder.isDone() == false)
         {
-            log.debug("====Cancelling the task====");
+            log.debug("Cancelling the task.");
         }
         boolean cancelReturn = futureOrder.cancel(true);
         if(!cancelReturn)
         {
-            log.debug("====Cancelling the task failed. It might has already been delivered====");
+            log.warn("Cancelling Water Order Id [ " + waterOrder.getId() + " ] failed. It might has already been delivered.");
             return false;
         }
         applicationEventPublisher.publishEvent(new WaterOrderCancelTaskEvent(this, waterOrder));
         removeTaskFromQueue(waterOrder);
+        log.info("Water Order Id [ " + waterOrder.getId() + " ] has been cancelled at "
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) +  ".");
         return true;
 
     }
@@ -116,7 +118,7 @@ public class SchedulerService {
         if(isInQueue(waterOrder))
             scheduledOrderList.remove(waterOrder.getId());
         else
-            log.error("Water Order Id [" + waterOrder.getId() + " is not in queue.");
+            log.warn("Water Order Id [ " + waterOrder.getId() + " ] is not in queue.");
     }
 }
 

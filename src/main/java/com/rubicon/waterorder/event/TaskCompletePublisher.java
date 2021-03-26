@@ -43,11 +43,11 @@ public class TaskCompletePublisher implements ApplicationEventPublisherAware {
     public  void notifyTaskDone(){
 
         if( this.waterOrder.getOrderStatus().toString().equals(Status.Requested.toString()) ){
-            log.debug("Water Order Id : [" + this.waterOrder.getId() + "] is triggered to start.");
+            log.debug("Water Order Id : [ " + this.waterOrder.getId() + " ] is triggered to start.");
             publisher.publishEvent(new WaterOrderStartTaskEvent(this, this.waterOrder));
         }
         if( this.waterOrder.getOrderStatus().toString().equals(Status.Started.toString()) ){
-            log.debug("Water Order Id : [" + this.waterOrder.getId() + "] is triggered to stop.");
+            log.debug("Water Order Id : [ " + this.waterOrder.getId() + " ] is triggered to stop.");
             publisher.publishEvent(new WaterOrderEndTaskEvent(this, this.waterOrder));
         }
     }

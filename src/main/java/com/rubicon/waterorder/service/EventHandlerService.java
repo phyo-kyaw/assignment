@@ -49,7 +49,7 @@ public class EventHandlerService {
     @EventListener
     void onStartTaskComplete(WaterOrderStartTaskEvent waterOrderStartTaskEvent){
 
-        log.debug("Water Order Id : [" + waterOrderStartTaskEvent.getWaterOrder().getId() + "] start task triggered.");
+        log.debug("Water Order Id : [ " + waterOrderStartTaskEvent.getWaterOrder().getId() + " ] start task triggered.");
 
         WaterOrder waterOrderProcessed = waterOrderStartTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
@@ -73,7 +73,7 @@ public class EventHandlerService {
     @EventListener
     void onEndTaskComplete(WaterOrderEndTaskEvent waterOrderEndTaskEvent){
 
-        log.debug("Water Order Id : [" + waterOrderEndTaskEvent.getWaterOrder().getId() + "] end task triggered.");
+        log.debug("Water Order Id : [ " + waterOrderEndTaskEvent.getWaterOrder().getId() + " ] end task triggered.");
 
         WaterOrder waterOrderProcessed = waterOrderEndTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
@@ -89,7 +89,7 @@ public class EventHandlerService {
 
             schedulerService.setApplicationEventPublisher(this.applicationEventPublisher);
             schedulerService.removeTaskFromQueue(waterOrderProcessed);
-            log.info("Water Order [" + waterOrderReferenced.getId() + "] complete at "
+            log.info("Water Order [ " + waterOrderReferenced.getId() + " ] complete at "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         }
@@ -98,14 +98,14 @@ public class EventHandlerService {
     @EventListener
     void onCancelTaskComplete(WaterOrderCancelTaskEvent waterOrderCancelTaskEvent){
 
-        log.debug("Water Order Id : [" + waterOrderCancelTaskEvent.getWaterOrder().getId() + "] cancel task triggered.");
+        log.debug("Water Order Id : [ " + waterOrderCancelTaskEvent.getWaterOrder().getId() + " ] cancel task triggered.");
 
         WaterOrder waterOrderProcessed = waterOrderCancelTaskEvent.getWaterOrder();
         WaterOrder waterOrderReferenced = waterOrderRepository.findById(waterOrderProcessed.getId()).get();
         String status = waterOrderReferenced.getOrderStatus().toString();
 
         if( status.equals(Status.Cancelled.toString()) || status.equals(Status.Delivered.toString()) ) {
-            log.error("The order has been delivered or cancelled.");
+            log.error("Water Order Id : [ " + waterOrderCancelTaskEvent.getWaterOrder().getId() + " ] has been delivered or cancelled.");
         }
 
         waterOrderReferenced.setOrderStatus(Status.Cancelled);
