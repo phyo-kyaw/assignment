@@ -4,6 +4,7 @@ import com.rubicon.waterorder.model.Status;
 import com.rubicon.waterorder.model.WaterOrder;
 import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.model.WaterOrderLog;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest
+@Order(3)
 class WaterOrderLogRepositoryTest {
 
     @Autowired

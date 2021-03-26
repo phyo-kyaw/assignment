@@ -104,11 +104,13 @@ public class WaterOrderProcessor {
 
         //requested waterOrderData must be with cancel status
         if (!waterOrderData.getOrderStatus().toString().equals(Status.Cancelled.toString())) {
+            System.out.println("**** not Cancelled!");
             return false;
         }
 
         //check with db if it's been delivered or cancelled.
         if (waterOrderValidator.isDeliveredOrCancelled(waterOrderData)) {
+            System.out.println("**** Cancelled or delivered!");
             return false;
         }
 

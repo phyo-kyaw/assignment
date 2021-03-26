@@ -6,6 +6,7 @@ import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.repository.WaterOrderRepository;
 import jdk.jshell.Snippet;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,7 +28,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
+
 @ExtendWith(MockitoExtension.class)
+@Order(2)
 class WaterOrderServiceTest {
 
     @Mock
@@ -100,7 +103,7 @@ class WaterOrderServiceTest {
         //overlapped with wod2
         WaterOrderData wod4 = new WaterOrderData( 114L, 222L, now().plusSeconds(25).format(formatter), "PT10S", "Requested");
         //no overlap
-        WaterOrderData wod5 = new WaterOrderData( 115L, 222L, now().plusSeconds(25).format(formatter), "PT10S", "Requested");
+        WaterOrderData wod5 = new WaterOrderData( 115L, 222L, now().plusSeconds(25).format(formatter), "PT2S", "Requested");
 
         WaterOrder wo1 = new WaterOrder(
                 wod1.getId(),

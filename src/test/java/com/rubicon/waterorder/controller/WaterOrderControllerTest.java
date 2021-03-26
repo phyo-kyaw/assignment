@@ -51,6 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(MockitoExtension.class)
+@Order(4)
 class WaterOrderControllerTest {
 
     @Mock
@@ -87,7 +88,7 @@ class WaterOrderControllerTest {
 
 
 
-        when(waterOrderRepository.findByIdAndFarmId(anyLong(), anyLong())).thenReturn(waterOrders);
+        //when(waterOrderRepository.findByIdAndFarmId(anyLong(), anyLong())).thenReturn(waterOrders);
 
         //when(waterOrderProcessor.createOrder(1L, waterOrderData)).thenReturn(true);
         //when(waterOrderLogRepository.findAll(anyLong())).thenReturn(waterOrderLogs);
@@ -101,8 +102,6 @@ class WaterOrderControllerTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         WaterOrderData waterOrderData = new WaterOrderData( 5300L, 112L, now().plusSeconds(10).format(formatter) , "PT10S", "Requested");
 
-        //given(waterOrderProcessor.createOrder(eq(112L), isA(WaterOrderData.class))).willReturn(true);
-        //argThat(new BarIsWhat(5))
         given(waterOrderProcessor.createOrder(eq(112L), argThat(new WaterOrderDataWithID(waterOrderData)))).willReturn(true);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -110,7 +109,6 @@ class WaterOrderControllerTest {
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
         String requestJson=ow.writeValueAsString(waterOrderData );
 
-        System.out.println("****** -> " + requestJson);
 
         mockMvc.perform(post("/farm/112/order")
                 .contentType(APPLICATION_JSON_UTF8)
@@ -118,7 +116,6 @@ class WaterOrderControllerTest {
                 //.accept(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk());
 
-        //assertEquals( requestJson, isA(WaterOrderData.class));
     }
 
     @MockitoSettings(strictness = Strictness.WARN)
@@ -149,36 +146,64 @@ class WaterOrderControllerTest {
     @Test
     void getOrderLogs_test() throws Exception {
         //when
-        List<WaterOrder> waterOrderList = controller.getOrder(anyLong(), anyLong());
+        List<WaterOrderLog> waterOrderLogs = new ArrayList<>();
+        WaterOrderLog waterOrderLog = new WaterOrderLog();
+        waterOrderLogs.add(waterOrderLog);
+
+        when(waterOrderProcessor.findBy_farmId(anyLong())).thenReturn(waterOrderLogs);
+
 
         //then
-        verify(waterOrderRepository).findByIdAndFarmId(anyLong(), anyLong());
-        assertEquals(1, waterOrderList.size());
-
-        //when
         mockMvc.perform(get("/farm/112/orderLog"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
 
         //then
-        verify(waterOrderRepository).findByIdAndFarmId(anyLong(), anyLong());
-        assertEquals(1, waterOrderList.size());
+        verify(waterOrderProcessor).findBy_farmId(anyLong());
+        //assertEquals(1, waterOrderList.size());
+    }
+
+    @Test
+    void getWaterOrderLogs_test() throws Exception {
+        //when
+        List<WaterOrderLog> waterOrderLogs = new ArrayList<>();
+        WaterOrderLog waterOrderLog = new WaterOrderLog();
+        waterOrderLogs.add(waterOrderLog);
+
+        when(waterOrderLogRepository.findBy_farmId(anyLong())).thenReturn(waterOrderLogs);
+
+
+        //then
+        mockMvc.perform(get("/farm/112/waterOrderLogs"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+
+        //then
+        verify(waterOrderLogRepository).findBy_farmId(anyLong());
+        //assertEquals(1, waterOrderList.size());
     }
 
     @Test
     void getOrder_test() throws Exception {
         //when
-        List<WaterOrder> waterOrderList = controller.getOrder(anyLong(), anyLong());
+        //List<WaterOrder> waterOrderList =
+        List<WaterOrder> waterOrders = new ArrayList<>();
+        WaterOrder waterOrder = new WaterOrder();
+        waterOrders.add(waterOrder);
 
-        //when
+        when(waterOrderRepository.findByIdAndFarmId(anyLong(), anyLong())).thenReturn(waterOrders);
+
+
+        //then
         mockMvc.perform(get("/farm/112/order/11"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
         //then
         verify(waterOrderRepository).findByIdAndFarmId(anyLong(), anyLong());
-        assertEquals(1, waterOrderList.size());
+
 
     }
 

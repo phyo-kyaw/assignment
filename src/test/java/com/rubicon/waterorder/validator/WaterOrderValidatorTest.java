@@ -5,6 +5,7 @@ import com.rubicon.waterorder.model.WaterOrderData;
 import com.rubicon.waterorder.model.WaterOrderLog;
 import com.rubicon.waterorder.service.WaterOrderService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@Order(1)
 class WaterOrderValidatorTest {
 
     @Mock
