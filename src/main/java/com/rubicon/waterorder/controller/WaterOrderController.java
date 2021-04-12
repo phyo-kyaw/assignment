@@ -13,13 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-
+@CrossOrigin(origins={"http://13.211.116.66:80", "http://13.211.116.66","http://localhost:80", "http://localhost:4200"})
 @RestController
+@RequestMapping("/api")
 public class WaterOrderController {
 
     WaterOrderRepository waterOrderRepository;
-
-    WaterOrderLogRepository waterOrderLogRepository;
 
     WaterOrderProcessor waterOrderProcessor;
 
@@ -32,11 +31,9 @@ public class WaterOrderController {
 
     @Autowired
     public WaterOrderController(WaterOrderRepository waterOrderRepository,
-                                WaterOrderLogRepository waterOrderLogRepository,
                                 WaterOrderTest waterOrderTest,
                                 WaterOrderProcessor waterOrderProcessor) {
         this.waterOrderRepository = waterOrderRepository;
-        this.waterOrderLogRepository = waterOrderLogRepository;
         this.waterOrderTest = waterOrderTest;
         this.waterOrderProcessor = waterOrderProcessor;
     }
@@ -45,15 +42,13 @@ public class WaterOrderController {
     @PostMapping("/farm/{farmId}/order")
     public ResponseEntity<Void> createOrder(
             @PathVariable Long farmId,
-            @RequestBody WaterOrderData waterOrderData){
+            @RequestBody WaterOrderData waterOrderData) {
 
         boolean isSuccess = waterOrderProcessor.createOrder(farmId, waterOrderData);
-        //return new ResponseEntity<Void>(HttpStatus.OK);
 
-        if(isSuccess){
+        if (isSuccess) {
             return new ResponseEntity<Void>(HttpStatus.OK);
-        }
-        else{
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -61,59 +56,36 @@ public class WaterOrderController {
     @PutMapping("/farm/{farmId}/order/{id}")
     public ResponseEntity<Void> cancelOrder(
             @PathVariable Long farmId,
-            @RequestBody WaterOrderData waterOrderData){
+            @PathVariable Long id,
+            @RequestBody WaterOrderData waterOrderData) {
         System.out.println("1 ");
-        boolean isSuccess = waterOrderProcessor.cancelOrder(farmId, waterOrderData );
+        boolean isSuccess = waterOrderProcessor.cancelOrder(farmId, waterOrderData);
         System.out.println("2 ");
-        if(isSuccess){
+        if (isSuccess) {
             return new ResponseEntity<Void>(HttpStatus.OK);
-        }
-        else{
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping("/farm/{farmId}/order/{orderId}")
-    public List<WaterOrder> getOrder(@PathVariable Long orderId, @PathVariable Long farmId) {
+    public List<WaterOrder> getOrderByIdAndFarmId(@PathVariable Long orderId, @PathVariable Long farmId) {
 
         return waterOrderRepository.findByIdAndFarmId(orderId, farmId);
     }
 
-    @GetMapping("/farm/{farmId}/orderLog")
-    public List<WaterOrderLog> getOrderLogs(@PathVariable Long farmId) {
-        System.out.println(farmId);
-        return waterOrderProcessor.findBy_farmId(farmId);
+    @GetMapping("/farm/{farmId}/order")
+    public List<WaterOrder> getOrderByFarmId(@PathVariable Long farmId) {
+
+        return waterOrderRepository.findByFarmId(farmId);
     }
 
-    //not working
-/*    @GetMapping("/farm/{farmId}/waterOrderLog")
-    public List<WaterOrderLog> getOrderLogs2(@PathVariable Long farmId) {
-        System.out.println(farmId);
-        return waterOrderLogRepository.findBy_farmId1(farmId);
-    }*/
-
-    //working
-    @GetMapping("/farm/{farmId}/waterOrderLogs")
-    public List<WaterOrderLog> getWaterOrderLogs(@PathVariable Long farmId) {
-        System.out.println(farmId);
-        return waterOrderLogRepository.findBy_farmId(farmId);
-    }
-
-/*    @GetMapping("/farm/{farmId}/waterOrder")
-    public List<WaterOrder> getOrderLogs1(@PathVariable Long farmId) {
-        System.out.println(farmId);
-        return waterOrderRepository.findBy_farmId(farmId);
-    }*/
 
     @GetMapping("/orders")
     public List<WaterOrder> getOrders() {
         return waterOrderRepository.findAll();
     }
 
-    @GetMapping("/orderLogs")
-    public List<WaterOrderLog> getOrderLogs() {
-        return waterOrderLogRepository.findAll();
-    }
 
 
     @GetMapping("/order/{orderId}")
@@ -131,4 +103,13 @@ public class WaterOrderController {
 
     }
 
+    @GetMapping("/refreshWaterOrderDb")
+    public String refresh() {
+
+        waterOrderRepository.deleteAll();
+
+        return "Database refresh done..";
+
+
+    }
 }

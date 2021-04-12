@@ -131,9 +131,21 @@ public class WaterOrderProcessor {
 
         Query query = (Query) entityManager.createNativeQuery("select wol_.id , wol_.created_date_time, wol_.order_status, wol_.water_order_id from water_order_log wol_ inner join water_order wo_ on wol_.water_order_id=wo_.id where wo_.farm_id=?");
         query.setParameter(1, farmId);
-        System.out.println(query.getParameter(1).toString());
+        //System.out.println(query.getParameter(1).toString());
         List<WaterOrderLog> resultList = query.getResultList();
-        System.out.println("JPA " + resultList.size());
+        //System.out.println("JPA " + resultList.size());
+
+        return resultList;
+    }
+
+    public List<WaterOrderLog> findBy_farmId_orderId(Long farmId, Long orderId) {
+
+        Query query = (Query) entityManager.createNativeQuery("select wol_.id , wol_.created_date_time, wol_.order_status, wol_.water_order_id from water_order_log wol_ inner join water_order wo_ on wol_.water_order_id=wo_.id where wo_.farm_id=? and wo_.id=?");
+        query.setParameter(1, farmId);
+        query.setParameter(2, orderId);
+        //System.out.println(query.getParameter(1).toString());
+        List<WaterOrderLog> resultList = query.getResultList();
+        //System.out.println("JPA " + resultList.size());
 
         return resultList;
     }
